@@ -74,24 +74,53 @@ detect_os() {
 }
 
 get_install_command() {
+    local package=${1:-stow}
     local os=$(detect_os)
 
     if [ "$os" = "macos" ]; then
-        echo "brew install stow"
+        echo "brew install $package"
     elif [ "$os" = "linux" ]; then
         if command -v apt &> /dev/null; then
-            echo "sudo apt install stow"
+            echo "sudo apt install $package"
         elif command -v pacman &> /dev/null; then
-            echo "sudo pacman -S stow"
+            echo "sudo pacman -S $package"
         elif command -v dnf &> /dev/null; then
-            echo "sudo dnf install stow"
+            echo "sudo dnf install $package"
         elif command -v yum &> /dev/null; then
-            echo "sudo yum install stow"
+            echo "sudo yum install $package"
         else
-            echo "Use your package manager to install: stow"
+            echo "Use your package manager to install: $package"
         fi
     else
-        echo "Use your package manager to install: stow"
+        echo "Use your package manager to install: $package"
+    fi
+}
+
+check_binary_installed() {
+    local binary=$1
+    command -v "$binary" &> /dev/null
+}
+
+install_binary() {
+    local binary=$1
+    local install_cmd=$(get_install_command "$binary")
+
+    print_info "Installing $binary binary..."
+
+    if [[ "$install_cmd" == *"Use your package manager"* ]]; then
+        print_error "Could not determine package manager"
+        print_info "Please install $binary manually and re-run this script"
+        return 1
+    fi
+
+    print_info "Running: ${CYAN}$install_cmd${NC}"
+
+    if eval "$install_cmd"; then
+        print_success "$binary installed successfully"
+        return 0
+    else
+        print_error "Failed to install $binary"
+        return 1
     fi
 }
 
@@ -100,7 +129,7 @@ check_dependencies() {
 
     if ! command -v stow &> /dev/null; then
         print_error "GNU Stow is not installed"
-        local install_cmd=$(get_install_command)
+        local install_cmd=$(get_install_command "stow")
         print_info "Install it with: ${CYAN}$install_cmd${NC}"
         return 1
     fi
@@ -243,10 +272,15 @@ install_package() {
     if stow_output=$(stow "$package" 2>&1); then
         print_success "$package installed successfully"
 
-        # Special handling for zsh
-        if [ "$package" = "zsh" ]; then
-            setup_zsh
-        fi
+        # Special handling for specific packages
+        case "$package" in
+            zsh)
+                setup_zsh
+                ;;
+            starship)
+                setup_starship
+                ;;
+        esac
         return 0
     else
         print_error "Failed to stow $package"
@@ -325,6 +359,123 @@ EOF
 
     print_success "Zsh setup complete!"
     print_info "Run ${CYAN}exec zsh${NC} or ${CYAN}source ~/.zshenv${NC} to apply changes"
+    return 0
+}
+
+setup_starship() {
+    print_info "Setting up Starship prompt..."
+
+    # Check if starship binary is installed
+    if ! check_binary_installed "starship"; then
+        print_warning "Starship binary is not installed"
+        echo ""
+        read -rp "$(echo -e "${BLUE}Would you like to install starship now?${NC} [Y/n]: ")" install_confirm
+
+        if [ "$install_confirm" != "n" ] && [ "$install_confirm" != "N" ]; then
+            if ! install_binary "starship"; then
+                print_error "Starship installation failed"
+                print_info "You can install it manually later with: ${CYAN}$(get_install_command starship)${NC}"
+                return 1
+            fi
+        else
+            print_info "Skipping starship binary installation"
+            print_info "Install it later with: ${CYAN}$(get_install_command starship)${NC}"
+            return 1
+        fi
+    else
+        print_success "Starship binary is already installed"
+    fi
+
+    echo ""
+
+    # Detect current shell
+    local current_shell
+    current_shell="$(basename "$SHELL")"
+    print_info "Detected shell: ${CYAN}$current_shell${NC}"
+
+    # If current shell is zsh, offer to install zsh config
+    if [ "$current_shell" = "zsh" ]; then
+        echo ""
+        print_info "Detected zsh as your shell"
+
+        # Check if zsh config is already installed
+        if ! is_already_stowed "zsh"; then
+            read -rp "$(echo -e "${BLUE}Would you like to install the zsh configuration as well?${NC} [Y/n]: ")" zsh_confirm
+
+            if [ "$zsh_confirm" != "n" ] && [ "$zsh_confirm" != "N" ]; then
+                print_info "Installing zsh configuration..."
+                if install_package "zsh"; then
+                    print_success "Zsh configuration installed"
+                else
+                    print_warning "Zsh installation failed, continuing with starship setup"
+                fi
+            fi
+        else
+            print_info "Zsh configuration already installed"
+        fi
+    fi
+
+    # Add starship initialization to shell rc file
+    add_starship_to_shell "$current_shell"
+
+    print_success "Starship setup complete!"
+    print_info "Reload your shell to see changes: ${CYAN}exec $current_shell${NC}"
+    return 0
+}
+
+add_starship_to_shell() {
+    local shell=$1
+    local rc_file=""
+    local init_line=""
+
+    case "$shell" in
+        bash)
+            rc_file="$HOME/.bashrc"
+            init_line='eval "$(starship init bash)"'
+            ;;
+        zsh)
+            # If using ZDOTDIR, add to the config zsh directory
+            if [ -n "$ZDOTDIR" ] && [ -d "$ZDOTDIR" ]; then
+                rc_file="$ZDOTDIR/.zshrc"
+            elif [ -f "$HOME/.config/zsh/.zshrc" ]; then
+                rc_file="$HOME/.config/zsh/.zshrc"
+            else
+                rc_file="$HOME/.zshrc"
+            fi
+            init_line='eval "$(starship init zsh)"'
+            ;;
+        fish)
+            rc_file="$HOME/.config/fish/config.fish"
+            init_line='starship init fish | source'
+            ;;
+        *)
+            print_warning "Unknown shell: $shell"
+            print_info "Add this to your shell RC file manually:"
+            echo -e "  ${CYAN}eval \"\$(starship init $shell)\"${NC}"
+            return 1
+            ;;
+    esac
+
+    # Check if rc file exists
+    if [ ! -f "$rc_file" ]; then
+        print_warning "Shell RC file not found: $rc_file"
+        print_info "Creating it now..."
+        mkdir -p "$(dirname "$rc_file")"
+        touch "$rc_file"
+    fi
+
+    # Check if starship is already initialized
+    if grep -q "starship init" "$rc_file" 2>/dev/null; then
+        print_info "Starship already initialized in $rc_file"
+        return 0
+    fi
+
+    # Add starship initialization
+    echo "" >> "$rc_file"
+    echo "# Initialize Starship prompt" >> "$rc_file"
+    echo "$init_line" >> "$rc_file"
+
+    print_success "Added starship initialization to $rc_file"
     return 0
 }
 
@@ -500,6 +651,11 @@ main() {
     echo ""
     print_info "Next steps:"
     echo -e "  - Review your configurations in ${CYAN}~/.config/${NC}"
+
+    if [[ " ${packages_to_install[*]} " =~ " starship " ]]; then
+        echo -e "  - Reload your shell to activate Starship prompt"
+    fi
+
     if [[ " ${packages_to_install[*]} " =~ " zsh " ]]; then
         echo -e "  - Restart your terminal or run: ${CYAN}exec zsh${NC}"
         echo -e "  - Add machine-specific config to: ${CYAN}~/.config/zsh/.zshrc.local${NC}"
