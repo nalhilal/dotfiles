@@ -85,12 +85,15 @@ To install: `stow starship`
 
 ### WezTerm
 
-Terminal emulator configuration featuring:
+Cross-platform terminal emulator configuration featuring:
 - Synthwave 2077 custom color scheme
-- CaskaydiaCove Nerd Font
 - Transparent background with blur effects
 - Minimal window decorations
-- Optimized padding and font size
+- OS-specific optimizations:
+  - **macOS**: D2CodingLigature Nerd Font, blinking bar cursor, minimal padding
+  - **Linux**: JetBrains Mono Nerd Font, steady block cursor, comfortable padding
+  - Platform-specific key bindings and mouse support
+- Automatic OS detection and configuration adjustment
 
 To install: `stow wezterm`
 
