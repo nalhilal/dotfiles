@@ -10,7 +10,21 @@
 # Green: #00ff9c
 # Yellow: #fffd91
 
-format = "[░▒▓](#f92aad)[  ](bg:#f92aad fg:#101116)[](bg:#492d99 fg:#f92aad)$directory[](fg:#492d99 bg:#2e186a)$git_branch$git_status[](fg:#2e186a bg:#1f1442)$nodejs$rust$golang$php[](fg:#1f1442 bg:#101116)$time[ ](fg:#101116)\n$character"
+format = "[░▒▓](#f92aad)$os[](bg:#492d99 fg:#f92aad)$directory[](fg:#492d99 bg:#2e186a)$git_branch$git_status[](fg:#2e186a bg:#1f1442)$nodejs$rust$golang$php[](fg:#1f1442 bg:#101116)$time[ ](fg:#101116)\n$character"
+
+[os]
+disabled = false
+style = "bg:#f92aad fg:#101116"
+format = "[ $symbol ]($style)"
+
+[os.symbols]
+Arch = "󰣇"
+Macos = ""
+Ubuntu = ""
+Debian = ""
+Fedora = ""
+Linux = ""
+Windows = ""
 
 [directory]
 style = "fg:#00d4b1 bg:#492d99"

@@ -85,8 +85,8 @@ stow -D nvim                    # Unstow (remove symlinks)
 
 ```bash
 # Commit conventions
-# - Use descriptive commit messages with emoji: 🤖 Generated with [Claude Code]
-# - Include Co-Authored-By: Claude <227337+nalhilal@users.noreply.github.com>
+# - NEVER add Claude attribution or Co-Authored-By lines
+# - Use descriptive commit messages
 # - Test before committing: bash test_install.sh
 
 # User's git email is set to GitHub noreply address
