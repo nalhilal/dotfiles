@@ -42,11 +42,19 @@ Configurations I plan to add:
 - **lazygit** - Terminal UI for git
 - **lazydocker** - Terminal UI for docker
 - **git** - Version control configuration
-- **ranger** - Terminal file manager
+- **yazi** - Terminal file manager
 - **wezterm** - Terminal Emulator
 - **claude-code** - AI-powered coding assistant
 - **cursor-agent** - AI code editor
 - **google-cli** - Google Cloud CLI
+- tldr
+- navi
+- zoxide
+- pass
+- doppler
+- jq
+- (Wave?)
+- posting (terminal postman)
 
 
 ## Contributing
