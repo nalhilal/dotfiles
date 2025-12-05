@@ -63,12 +63,45 @@ detect_shell() {
     echo "$current_shell"
 }
 
+detect_os() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "macos"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        echo "linux"
+    else
+        echo "unix"
+    fi
+}
+
+get_install_command() {
+    local os=$(detect_os)
+
+    if [ "$os" = "macos" ]; then
+        echo "brew install stow"
+    elif [ "$os" = "linux" ]; then
+        if command -v apt &> /dev/null; then
+            echo "sudo apt install stow"
+        elif command -v pacman &> /dev/null; then
+            echo "sudo pacman -S stow"
+        elif command -v dnf &> /dev/null; then
+            echo "sudo dnf install stow"
+        elif command -v yum &> /dev/null; then
+            echo "sudo yum install stow"
+        else
+            echo "Use your package manager to install: stow"
+        fi
+    else
+        echo "Use your package manager to install: stow"
+    fi
+}
+
 check_dependencies() {
     print_info "Checking dependencies..."
 
     if ! command -v stow &> /dev/null; then
         print_error "GNU Stow is not installed"
-        print_info "Install it with: ${CYAN}brew install stow${NC}"
+        local install_cmd=$(get_install_command)
+        print_info "Install it with: ${CYAN}$install_cmd${NC}"
         return 1
     fi
 
@@ -79,24 +112,35 @@ check_dependencies() {
 is_already_stowed() {
     local package=$1
     local target_dir=""
+    local source_dir=""
 
     case "$package" in
         nvim)
             target_dir="$HOME/.config/nvim"
+            source_dir="$DOTFILES_DIR/nvim/.config/nvim"
             ;;
         starship)
             target_dir="$HOME/.config/starship.toml"
+            source_dir="$DOTFILES_DIR/starship/.config/starship.toml"
             ;;
         wezterm)
             target_dir="$HOME/.config/wezterm"
+            source_dir="$DOTFILES_DIR/wezterm/.config/wezterm"
             ;;
         zsh)
             target_dir="$HOME/.config/zsh"
+            source_dir="$DOTFILES_DIR/zsh/.config/zsh"
             ;;
     esac
 
+    # Check if it's a symlink pointing to our dotfiles
     if [ -L "$target_dir" ]; then
-        return 0  # Already a symlink
+        local link_target
+        link_target=$(readlink "$target_dir")
+        # Check if it points to our dotfiles directory
+        if [[ "$link_target" == "$source_dir" ]] || [[ "$(cd "$(dirname "$target_dir")" && pwd -P)/$(basename "$target_dir")" == "$source_dir" ]]; then
+            return 0  # Already correctly stowed
+        fi
     fi
     return 1
 }
@@ -104,52 +148,79 @@ is_already_stowed() {
 backup_existing() {
     local package=$1
     local backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
-    local backed_up=0
 
     case "$package" in
         nvim)
             if [ -e "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
-                mkdir -p "$backup_dir"
-                mv "$HOME/.config/nvim" "$backup_dir/"
+                mkdir -p "$backup_dir" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                mv "$HOME/.config/nvim" "$backup_dir/" || {
+                    print_error "Failed to backup nvim config"
+                    return 1
+                }
                 print_warning "Backed up existing nvim config to: $backup_dir"
-                backed_up=1
             fi
             ;;
         starship)
             if [ -e "$HOME/.config/starship.toml" ] && [ ! -L "$HOME/.config/starship.toml" ]; then
-                mkdir -p "$backup_dir"
-                mv "$HOME/.config/starship.toml" "$backup_dir/"
+                mkdir -p "$backup_dir" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                mv "$HOME/.config/starship.toml" "$backup_dir/" || {
+                    print_error "Failed to backup starship config"
+                    return 1
+                }
                 print_warning "Backed up existing starship config to: $backup_dir"
-                backed_up=1
             fi
             ;;
         wezterm)
             if [ -e "$HOME/.config/wezterm" ] && [ ! -L "$HOME/.config/wezterm" ]; then
-                mkdir -p "$backup_dir"
-                mv "$HOME/.config/wezterm" "$backup_dir/"
+                mkdir -p "$backup_dir" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                mv "$HOME/.config/wezterm" "$backup_dir/" || {
+                    print_error "Failed to backup wezterm config"
+                    return 1
+                }
                 print_warning "Backed up existing wezterm config to: $backup_dir"
-                backed_up=1
             fi
             ;;
         zsh)
             if [ -e "$HOME/.config/zsh" ] && [ ! -L "$HOME/.config/zsh" ]; then
-                mkdir -p "$backup_dir"
+                mkdir -p "$backup_dir" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
                 # Backup but preserve .zshrc.local if it exists
                 if [ -f "$HOME/.config/zsh/.zshrc.local" ]; then
-                    cp "$HOME/.config/zsh/.zshrc.local" "$backup_dir/.zshrc.local.keep"
+                    cp "$HOME/.config/zsh/.zshrc.local" "$backup_dir/.zshrc.local.keep" || {
+                        print_warning "Failed to preserve .zshrc.local"
+                    }
                 fi
-                mv "$HOME/.config/zsh" "$backup_dir/"
+                mv "$HOME/.config/zsh" "$backup_dir/" || {
+                    print_error "Failed to backup zsh config"
+                    return 1
+                }
                 print_warning "Backed up existing zsh config to: $backup_dir"
-                backed_up=1
             fi
             ;;
     esac
 
-    return $backed_up
+    return 0
 }
 
 install_package() {
     local package=$1
+
+    # Verify package directory exists
+    if [ ! -d "$DOTFILES_DIR/$package" ]; then
+        print_error "Package directory not found: $DOTFILES_DIR/$package"
+        return 1
+    fi
 
     if is_already_stowed "$package"; then
         print_info "$package is already stowed, skipping..."
@@ -162,16 +233,23 @@ install_package() {
     backup_existing "$package"
 
     # Stow the package
-    cd "$DOTFILES_DIR"
-    if stow "$package" 2>&1; then
+    cd "$DOTFILES_DIR" || {
+        print_error "Failed to change to dotfiles directory"
+        return 1
+    }
+
+    local stow_output
+    if stow_output=$(stow "$package" 2>&1); then
         print_success "$package installed successfully"
 
         # Special handling for zsh
         if [ "$package" = "zsh" ]; then
             setup_zsh
         fi
+        return 0
     else
         print_error "Failed to stow $package"
+        print_error "Stow output: $stow_output"
         return 1
     fi
 }
@@ -181,10 +259,13 @@ setup_zsh() {
 
     # Create ~/.zshenv if it doesn't exist
     if [ ! -f "$HOME/.zshenv" ]; then
-        cat > "$HOME/.zshenv" << 'EOF'
+        cat > "$HOME/.zshenv" << 'EOF' || {
 # Set XDG-compliant zsh config directory
 export ZDOTDIR="$HOME/.config/zsh"
 EOF
+            print_error "Failed to create ~/.zshenv"
+            return 1
+        }
         print_success "Created ~/.zshenv"
     else
         print_warning "~/.zshenv already exists, skipping..."
@@ -192,7 +273,7 @@ EOF
 
     # Create placeholder ~/.zshrc for installers
     if [ ! -f "$HOME/.zshrc" ]; then
-        cat > "$HOME/.zshrc" << 'EOF'
+        cat > "$HOME/.zshrc" << 'EOF' || {
 # This file exists for installers that try to modify ~/.zshrc
 # Zsh ignores this file because ZDOTDIR is set in ~/.zshenv
 #
@@ -201,6 +282,9 @@ EOF
 #
 # DO NOT source anything from here, as it would defeat the purpose of ZDOTDIR
 EOF
+            print_error "Failed to create ~/.zshrc"
+            return 1
+        }
         print_success "Created placeholder ~/.zshrc"
     else
         print_warning "~/.zshrc already exists, skipping..."
@@ -208,7 +292,7 @@ EOF
 
     # Create .zshrc.local if it doesn't exist
     if [ ! -f "$HOME/.config/zsh/.zshrc.local" ]; then
-        cat > "$HOME/.config/zsh/.zshrc.local" << 'EOF'
+        cat > "$HOME/.config/zsh/.zshrc.local" << 'EOF' || {
 # Machine-specific Zsh Configuration
 # This file is NOT version controlled
 # Add your machine-specific configurations here
@@ -218,6 +302,9 @@ EOF
 # - API keys and tokens
 # - Tool initializations (conda, nvm, etc.)
 EOF
+            print_error "Failed to create ~/.config/zsh/.zshrc.local"
+            return 1
+        }
         print_success "Created ~/.config/zsh/.zshrc.local"
     else
         print_info ".zshrc.local already exists, preserving..."
@@ -225,12 +312,19 @@ EOF
 
     # Manually symlink .gitignore if stow didn't (it sometimes skips it)
     if [ ! -e "$HOME/.config/zsh/.gitignore" ]; then
-        ln -s "$DOTFILES_DIR/zsh/.config/zsh/.gitignore" "$HOME/.config/zsh/.gitignore"
-        print_success "Symlinked .gitignore"
+        if [ -f "$DOTFILES_DIR/zsh/.config/zsh/.gitignore" ]; then
+            ln -s "$DOTFILES_DIR/zsh/.config/zsh/.gitignore" "$HOME/.config/zsh/.gitignore" || {
+                print_warning "Failed to symlink .gitignore"
+            }
+            print_success "Symlinked .gitignore"
+        else
+            print_warning ".gitignore not found in dotfiles, skipping..."
+        fi
     fi
 
     print_success "Zsh setup complete!"
     print_info "Run ${CYAN}exec zsh${NC} or ${CYAN}source ~/.zshenv${NC} to apply changes"
+    return 0
 }
 
 interactive_mode() {
