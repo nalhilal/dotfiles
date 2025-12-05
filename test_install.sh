@@ -414,7 +414,7 @@ test_enhanced_symlink_verification() {
     ln -s "$MOCK_DOTFILES/nvim/.config/nvim" "$MOCK_HOME/.config/nvim"
 
     local link_target
-    link_target=$(readlink "$MOCK_HOME/.config/nvim" 2>/dev/null)
+    link_target=$(readlink -f "$MOCK_HOME/.config/nvim" 2>/dev/null)
 
     if [[ "$link_target" == "$MOCK_DOTFILES/nvim/.config/nvim" ]]; then
         assert_true "true" "Should verify symlink points to correct dotfiles directory" || true
@@ -427,7 +427,7 @@ test_enhanced_symlink_verification() {
     mkdir -p "$TEST_DIR/wrong_dotfiles/nvim/.config/nvim"
     ln -sf "$TEST_DIR/wrong_dotfiles/nvim/.config/nvim" "$MOCK_HOME/.config/nvim"
 
-    link_target=$(readlink "$MOCK_HOME/.config/nvim" 2>/dev/null)
+    link_target=$(readlink -f "$MOCK_HOME/.config/nvim" 2>/dev/null)
 
     if [[ "$link_target" != "$MOCK_DOTFILES/nvim/.config/nvim" ]]; then
         assert_true "true" "Should detect symlink pointing to wrong directory" || true

@@ -136,9 +136,10 @@ is_already_stowed() {
     # Check if it's a symlink pointing to our dotfiles
     if [ -L "$target_dir" ]; then
         local link_target
-        link_target=$(readlink "$target_dir")
+        # Get absolute path of symlink target
+        link_target=$(readlink -f "$target_dir" 2>/dev/null)
         # Check if it points to our dotfiles directory
-        if [[ "$link_target" == "$source_dir" ]] || [[ "$(cd "$(dirname "$target_dir")" && pwd -P)/$(basename "$target_dir")" == "$source_dir" ]]; then
+        if [[ "$link_target" == "$source_dir" ]]; then
             return 0  # Already correctly stowed
         fi
     fi
@@ -498,10 +499,10 @@ main() {
     print_success "Installation complete!"
     echo ""
     print_info "Next steps:"
-    echo "  - Review your configurations in ${CYAN}~/.config/${NC}"
+    echo -e "  - Review your configurations in ${CYAN}~/.config/${NC}"
     if [[ " ${packages_to_install[*]} " =~ " zsh " ]]; then
-        echo "  - Restart your terminal or run: ${CYAN}exec zsh${NC}"
-        echo "  - Add machine-specific config to: ${CYAN}~/.config/zsh/.zshrc.local${NC}"
+        echo -e "  - Restart your terminal or run: ${CYAN}exec zsh${NC}"
+        echo -e "  - Add machine-specific config to: ${CYAN}~/.config/zsh/.zshrc.local${NC}"
     fi
     echo ""
 }
