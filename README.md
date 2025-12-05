@@ -76,6 +76,7 @@ To install: `stow nvim` and launch Neovim. Plugins will install automatically.
 ### Starship
 
 Cross-shell prompt with a custom Synthwave 2077 theme featuring:
+- OS-aware icon display (Arch, macOS, Ubuntu, Debian, Fedora, etc.)
 - Color-coded directory display with icon substitutions
 - Git branch and status indicators
 - Language version display (Node.js, Rust, Go, PHP)
