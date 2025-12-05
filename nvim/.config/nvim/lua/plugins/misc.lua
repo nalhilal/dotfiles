@@ -56,4 +56,8 @@ return {
       require('colorizer').setup()
     end,
   },
+  {
+    'xiyaowong/transparent.nvim',
+    config = true,
+  },
 }

@@ -19,7 +19,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- Import color theme based on environment variable NVIM_THEME
-local default_color_scheme = 'myNord'
+local default_color_scheme = 'synthwave'
 local env_var_nvim_theme = os.getenv 'NVIM_THEME' or default_color_scheme
 
 -- Define a table of theme modules
@@ -29,9 +29,7 @@ local themes = {
   myNord = 'plugins.colortheme',
 }
 
--- Setup plugins
-require('lazy').setup({
-  require(themes[env_var_nvim_theme]),
+local plugins = {
   require 'plugins.telescope',
   require 'plugins.treesitter',
   require 'plugins.lsp',
@@ -53,7 +51,14 @@ require('lazy').setup({
   --  require 'plugins.avante',
   --  require 'plugins.aerial',
   --  require 'plugins.vim-tmux-navigator',
-}, {
+}
+
+if themes[env_var_nvim_theme] then
+  table.insert(plugins, require(themes[env_var_nvim_theme]))
+end
+
+-- Setup plugins
+require('lazy').setup(plugins, {
   ui = {
     -- If you have a Nerd Font, set icons to an empty table which will use the
     -- default lazy.nvim defined Nerd Font icons otherwise define a unicode icons table
@@ -74,6 +79,10 @@ require('lazy').setup({
     },
   },
 })
+
+if env_var_nvim_theme == 'synthwave' then
+  vim.cmd.colorscheme 'synthwave'
+end
 
 -- Function to check if a file exists
 local function file_exists(file)
