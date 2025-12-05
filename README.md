@@ -15,22 +15,47 @@ git clone https://github.com/nalhilal/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ```
 
-Individual configurations can be symlinked as needed. I recommend using [GNU Stow](https://www.gnu.org/software/stow/) for managing symlinks:
+### Quick Install (Recommended)
+
+Run the interactive install script:
+
+```bash
+./install.sh
+```
+
+The script will:
+- Detect your current shell
+- Check for dependencies (GNU Stow)
+- Backup existing configurations
+- Let you choose which packages to install
+- Handle zsh setup automatically (creates `~/.zshenv`, `.zshrc`, etc.)
+
+**Command-line options:**
+```bash
+./install.sh                    # Interactive mode
+./install.sh --all              # Install everything
+./install.sh nvim zsh           # Install specific packages
+./install.sh --help             # Show all options
+```
+
+### Manual Installation
+
+You can also use [GNU Stow](https://www.gnu.org/software/stow/) directly:
 
 ```bash
 # Install all configs
-stow nvim starship wezterm
+stow nvim starship wezterm zsh
 
 # Or install individually
 stow nvim
 stow starship
 stow wezterm
+stow zsh
 ```
 
-Or manually symlink specific configurations:
-
+**Note for zsh**: If installing manually, you need to create `~/.zshenv`:
 ```bash
-ln -s ~/.dotfiles/nvim ~/.config/nvim
+echo 'export ZDOTDIR="$HOME/.config/zsh"' > ~/.zshenv
 ```
 
 ## What's Included
@@ -69,13 +94,38 @@ Terminal emulator configuration featuring:
 
 To install: `stow wezterm`
 
+### Zsh
+
+Modular zsh configuration using ZDOTDIR for clean home directory:
+- Portable configuration separated from machine-specific settings
+- History management with extensive options
+- Integration with zsh-autosuggestions and zsh-syntax-highlighting
+- Modular files for different tools (fzf, git, nvim, zoxide)
+- Machine-specific config in `.zshrc.local` (not version controlled)
+
+**Files**:
+- `.zshrc` - Main configuration (portable)
+- `.zshenv` - Environment variables (portable)
+- `.zshrc.local` - Machine-specific config (auto-generated, not tracked)
+- `starship.zsh` - Starship prompt initialization
+- `fzf.zsh` - FZF configuration
+- `git.zsh` - Git aliases
+- `nvim.zsh` - Neovim integration
+- `zoxide.zsh` - Zoxide setup
+- `extras.zsh` - Additional configurations
+
+To install: `stow zsh`, then create `~/.zshenv` as shown in the installation section.
+
 ## Planned Additions
 
 Configurations I plan to add:
 
 - **fzf** - Command-line fuzzy finder
 - **bat** - Cat clone with syntax highlighting
+- **eza** - Modern replacement for ls with icons and colors
+- **fd** - Fast and user-friendly alternative to find
 - **ripgrep** - Fast search tool
+- **tmux** - Terminal multiplexer
 - **lazygit** - Terminal UI for git
 - **lazydocker** - Terminal UI for docker
 - **git** - Version control configuration
@@ -83,6 +133,7 @@ Configurations I plan to add:
 - **claude-code** - AI-powered coding assistant
 - **cursor-agent** - AI code editor
 - **google-cli** - Google Cloud CLI
+- **pipx** - Install and run Python applications in isolated environments
 - **tldr** - Simplified man pages
 - **navi** - Interactive cheatsheet tool
 - **zoxide** - Smarter cd command

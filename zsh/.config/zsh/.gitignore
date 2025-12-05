@@ -1,0 +1,4 @@
+# Machine-specific configuration files (not version controlled)
+.zshrc.local
+.zshenv.local
+.zsh_history
