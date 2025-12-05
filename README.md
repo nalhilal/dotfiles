@@ -1,49 +1,65 @@
 # My Dotfiles
 
-These are my personal dotfiles. I'm slowly building them up, so expect things to change.
+Personal configuration files for my development environment. This repository is a work in progress as I continue to refine and expand my setup.
 
-## Neovim
+## Installation
 
-My Neovim configuration is written in Lua and is managed by the [lazy.nvim](https.github.com/folke/lazy.nvim) plugin manager.
+Clone this repository to your home directory:
 
-### Installation
+```bash
+git clone https://github.com/nalhilal/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+```
 
-1.  Clone this repository: `git clone https://github.com/nalhilal/dotfiles.git`
-2.  Symlink the `nvim` directory: `ln -s $(pwd)/nvim ~/.config/nvim`
-3.  Launch Neovim. The plugins will be installed automatically.
+Individual configurations can be symlinked as needed. I recommend using [GNU Stow](https://www.gnu.org/software/stow/) for managing symlinks:
 
-### Features
+```bash
+# Example: symlink nvim config
+stow nvim
+```
 
-- **Plugin Management:** Using `lazy.nvim` for easy plugin management.
-- **LSP:** Full LSP support for code intelligence.
-- **Autocompletion:** Using `nvim-cmp` for autocompletion.
-- **Telescope:** For fuzzy finding files, buffers, and more.
-- **Treesitter:** For better syntax highlighting and code navigation.
-- **Git Integration:** With `gitsigns.nvim`.
-- **Beautiful UI:** With a custom theme, `lualine`, `bufferline`, and `alpha` (dashboard).
+Or manually symlink specific configurations:
 
-### Plugins
+```bash
+ln -s ~/.dotfiles/nvim ~/.config/nvim
+```
 
-Here is a list of the plugins I'm currently using:
+## What's Included
 
-- **[alpha-nvim](https://github.com/goolord/alpha-nvim):** A dashboard for Neovim.
-- **[nvim-cmp](https://github.com/hrsh7th/nvim-cmp):** Autocompletion plugin.
-- **[null-ls.nvim](https://github.com/jose-elias-alvarez/null-ls.nvim):** for formatting and linting.
-- **[nvim-bufferline.lua](https://github.com/akinsho/nvim-bufferline.lua):** A simple bufferline.
-- **A custom colorscheme (colortheme.lua).**
-- **[gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim):** Git integration.
-- **[indent-blankline.nvim](https://github.com/lukas-reineke/indent-blankline.nvim):** Indentation guides.
-- **[nvim-lspconfig](https://github.com/neovim/nvim-lspconfig):** LSP configurations.
-- **[lualine.nvim](https://github.com/nvim-lualine/lualine.nvim):** A statusline for Neovim.
-- **[neo-tree.nvim](https://github.com/nvim-neo-tree/neo-tree.nvim):** A file explorer.
-- **[telescope.nvim](https://github.com/nvim-telescope/telescope.nvim):** A fuzzy finder.
-- **[nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter):** Treesitter support.
+### Neovim
 
-### Keymaps
+A Lua-based Neovim configuration using [lazy.nvim](https://github.com/folke/lazy.nvim) for plugin management. Features include LSP support, autocompletion, fuzzy finding with Telescope, Treesitter syntax highlighting, Git integration, and a custom UI theme.
 
-The main keymaps are defined in `lua/core/keymaps.lua`. The leader key is `<space>`.
+To install: `ln -s $(pwd)/nvim ~/.config/nvim` and launch Neovim. Plugins will install automatically.
 
-_I will add more details about the keymaps later._
+## Planned Additions
+
+Configurations I plan to add:
+
+- **fzf** - Command-line fuzzy finder
+- **bat** - Cat clone with syntax highlighting
+- **ripgrep** - Fast search tool
+- **lazygit** - Terminal UI for git
+- **lazydocker** - Terminal UI for docker
+- **git** - Version control configuration
+- **yazi** - Terminal file manager
+- **wezterm** - Terminal Emulator
+- **claude-code** - AI-powered coding assistant
+- **cursor-agent** - AI code editor
+- **google-cli** - Google Cloud CLI
+- tldr
+- navi
+- zoxide
+- pass
+- doppler
+- jq
+- (Wave?)
+- posting (terminal postman)
+
+
+## Contributing
+
+These are my personal dotfiles, but feel free to fork and adapt them for your own use.
 
 ## License
 
