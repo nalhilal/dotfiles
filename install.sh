@@ -142,6 +142,7 @@ is_already_stowed() {
     local package=$1
     local target_dir=""
     local source_dir=""
+    local os=$(detect_os)
 
     case "$package" in
         nvim)
@@ -149,7 +150,13 @@ is_already_stowed() {
             source_dir="$DOTFILES_DIR/nvim/.config/nvim"
             ;;
         lazygit)
-            target_dir="$HOME/.config/lazygit"
+            # lazygit has different default locations on macOS vs Linux
+            if [ "$os" = "macos" ]; then
+                # Check if macOS Library location is properly symlinked
+                target_dir="$HOME/Library/Application Support/lazygit"
+            else
+                target_dir="$HOME/.config/lazygit"
+            fi
             source_dir="$DOTFILES_DIR/lazygit/.config/lazygit"
             ;;
         starship)
@@ -176,12 +183,25 @@ is_already_stowed() {
             return 0  # Already correctly stowed
         fi
     fi
+
+    # For lazygit on macOS, also check if config.yml is symlinked
+    if [ "$package" = "lazygit" ] && [ "$os" = "macos" ]; then
+        if [ -L "$HOME/Library/Application Support/lazygit/config.yml" ]; then
+            local link_target
+            link_target=$(readlink -f "$HOME/Library/Application Support/lazygit/config.yml" 2>/dev/null)
+            if [[ "$link_target" == "$HOME/.config/lazygit/config.yml" ]]; then
+                return 0  # Already correctly configured
+            fi
+        fi
+    fi
+
     return 1
 }
 
 backup_existing() {
     local package=$1
     local backup_dir="$HOME/.dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
+    local os=$(detect_os)
 
     case "$package" in
         nvim)
@@ -198,6 +218,7 @@ backup_existing() {
             fi
             ;;
         lazygit)
+            # Backup XDG config location if it exists
             if [ -e "$HOME/.config/lazygit" ] && [ ! -L "$HOME/.config/lazygit" ]; then
                 mkdir -p "$backup_dir" || {
                     print_error "Failed to create backup directory: $backup_dir"
@@ -207,7 +228,21 @@ backup_existing() {
                     print_error "Failed to backup lazygit config"
                     return 1
                 }
-                print_warning "Backed up existing lazygit config to: $backup_dir"
+                print_warning "Backed up existing lazygit config (XDG) to: $backup_dir"
+            fi
+            # On macOS, also backup Library location if it exists
+            if [ "$os" = "macos" ]; then
+                if [ -e "$HOME/Library/Application Support/lazygit" ] && [ ! -L "$HOME/Library/Application Support/lazygit" ]; then
+                    mkdir -p "$backup_dir" || {
+                        print_error "Failed to create backup directory: $backup_dir"
+                        return 1
+                    }
+                    mv "$HOME/Library/Application Support/lazygit" "$backup_dir/lazygit-macos" || {
+                        print_error "Failed to backup lazygit config (macOS)"
+                        return 1
+                    }
+                    print_warning "Backed up existing lazygit config (macOS) to: $backup_dir/lazygit-macos"
+                fi
             fi
             ;;
         starship)
@@ -291,6 +326,9 @@ install_package() {
 
         # Special handling for specific packages
         case "$package" in
+            lazygit)
+                setup_lazygit
+                ;;
             zsh)
                 setup_zsh
                 ;;
@@ -304,6 +342,56 @@ install_package() {
         print_error "Stow output: $stow_output"
         return 1
     fi
+}
+
+setup_lazygit() {
+    print_info "Setting up lazygit configuration..."
+    local os=$(detect_os)
+
+    # On macOS, lazygit looks for config in ~/Library/Application Support/lazygit/
+    # We need to create a symlink from there to our stowed config in ~/.config/lazygit/
+    if [ "$os" = "macos" ]; then
+        local macos_config_dir="$HOME/Library/Application Support/lazygit"
+        local xdg_config_dir="$HOME/.config/lazygit"
+
+        # Create the macOS directory if it doesn't exist
+        if [ ! -d "$macos_config_dir" ]; then
+            mkdir -p "$macos_config_dir" || {
+                print_error "Failed to create macOS lazygit directory"
+                return 1
+            }
+        fi
+
+        # Create symlink for config.yml
+        if [ ! -e "$macos_config_dir/config.yml" ]; then
+            ln -s "$xdg_config_dir/config.yml" "$macos_config_dir/config.yml" || {
+                print_error "Failed to symlink lazygit config.yml"
+                return 1
+            }
+            print_success "Created symlink: $macos_config_dir/config.yml -> $xdg_config_dir/config.yml"
+        elif [ -L "$macos_config_dir/config.yml" ]; then
+            print_info "lazygit config.yml symlink already exists"
+        else
+            print_warning "lazygit config.yml exists but is not a symlink"
+            print_info "You may want to backup and replace it with: ln -sf $xdg_config_dir/config.yml $macos_config_dir/config.yml"
+        fi
+
+        # Also symlink ai-commit.sh if it exists
+        if [ -f "$xdg_config_dir/ai-commit.sh" ]; then
+            if [ ! -e "$macos_config_dir/ai-commit.sh" ]; then
+                ln -s "$xdg_config_dir/ai-commit.sh" "$macos_config_dir/ai-commit.sh" || {
+                    print_warning "Failed to symlink ai-commit.sh"
+                }
+                print_success "Created symlink: $macos_config_dir/ai-commit.sh -> $xdg_config_dir/ai-commit.sh"
+            fi
+        fi
+
+        print_success "lazygit macOS configuration complete!"
+    else
+        print_info "lazygit uses XDG config directory on Linux"
+    fi
+
+    return 0
 }
 
 setup_zsh() {
