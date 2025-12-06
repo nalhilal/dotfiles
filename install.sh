@@ -29,7 +29,7 @@ fi
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Available packages
-AVAILABLE_PACKAGES=("git" "lazygit" "nvim" "starship" "wezterm" "zsh")
+AVAILABLE_PACKAGES=("git" "lazygit" "nvim" "starship" "tmux" "wezterm" "zsh")
 
 # Functions
 print_header() {
@@ -163,6 +163,10 @@ is_already_stowed() {
             target_dir="$HOME/.config/starship.toml"
             source_dir="$DOTFILES_DIR/starship/.config/starship.toml"
             ;;
+        tmux)
+            target_dir="$HOME/.config/tmux"
+            source_dir="$DOTFILES_DIR/tmux/.config/tmux"
+            ;;
         wezterm)
             target_dir="$HOME/.config/wezterm"
             source_dir="$DOTFILES_DIR/wezterm/.config/wezterm"
@@ -256,6 +260,19 @@ backup_existing() {
                     return 1
                 }
                 print_warning "Backed up existing starship config to: $backup_dir"
+            fi
+            ;;
+        tmux)
+            if [ -e "$HOME/.config/tmux" ] && [ ! -L "$HOME/.config/tmux" ]; then
+                mkdir -p "$backup_dir" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                mv "$HOME/.config/tmux" "$backup_dir/" || {
+                    print_error "Failed to backup tmux config"
+                    return 1
+                }
+                print_warning "Backed up existing tmux config to: $backup_dir"
             fi
             ;;
         wezterm)

@@ -2,8 +2,39 @@
 return {
   'nvim-lualine/lualine.nvim',
   config = function()
-    -- Adapted from: https://github.com/nvim-lualine/lualine.nvim/blob/master/lua/lualine/themes/onedark.lua
-    local colors = {
+    -- Synthwave 2077 color palette
+    local synthwave_colors = {
+      pink = '#ff7edb',
+      purple = '#b893ce',
+      cyan = '#72f1b8',
+      neon_green = '#fede5d',
+      bg = '#262335',
+      fg = '#f8f8f2',
+      gray1 = '#848bbd',
+      gray2 = '#2a273f',
+      gray3 = '#393552',
+    }
+
+    local synthwave_theme = {
+      normal = {
+        a = { fg = synthwave_colors.bg, bg = synthwave_colors.cyan, gui = 'bold' },
+        b = { fg = synthwave_colors.fg, bg = synthwave_colors.gray3 },
+        c = { fg = synthwave_colors.fg, bg = synthwave_colors.gray2 },
+      },
+      command = { a = { fg = synthwave_colors.bg, bg = synthwave_colors.neon_green, gui = 'bold' } },
+      insert = { a = { fg = synthwave_colors.bg, bg = synthwave_colors.pink, gui = 'bold' } },
+      visual = { a = { fg = synthwave_colors.bg, bg = synthwave_colors.purple, gui = 'bold' } },
+      terminal = { a = { fg = synthwave_colors.bg, bg = synthwave_colors.cyan, gui = 'bold' } },
+      replace = { a = { fg = synthwave_colors.bg, bg = synthwave_colors.pink, gui = 'bold' } },
+      inactive = {
+        a = { fg = synthwave_colors.gray1, bg = synthwave_colors.bg, gui = 'bold' },
+        b = { fg = synthwave_colors.gray1, bg = synthwave_colors.bg },
+        c = { fg = synthwave_colors.gray1, bg = synthwave_colors.gray2 },
+      },
+    }
+
+    -- OneDark color palette (legacy)
+    local onedark_colors = {
       blue = '#61afef',
       green = '#98c379',
       purple = '#c678dd',
@@ -20,27 +51,28 @@ return {
 
     local onedark_theme = {
       normal = {
-        a = { fg = colors.bg, bg = colors.green, gui = 'bold' },
-        b = { fg = colors.fg, bg = colors.gray3 },
-        c = { fg = colors.fg, bg = colors.gray2 },
+        a = { fg = onedark_colors.bg, bg = onedark_colors.green, gui = 'bold' },
+        b = { fg = onedark_colors.fg, bg = onedark_colors.gray3 },
+        c = { fg = onedark_colors.fg, bg = onedark_colors.gray2 },
       },
-      command = { a = { fg = colors.bg, bg = colors.yellow, gui = 'bold' } },
-      insert = { a = { fg = colors.bg, bg = colors.blue, gui = 'bold' } },
-      visual = { a = { fg = colors.bg, bg = colors.purple, gui = 'bold' } },
-      terminal = { a = { fg = colors.bg, bg = colors.cyan, gui = 'bold' } },
-      replace = { a = { fg = colors.bg, bg = colors.red1, gui = 'bold' } },
+      command = { a = { fg = onedark_colors.bg, bg = onedark_colors.yellow, gui = 'bold' } },
+      insert = { a = { fg = onedark_colors.bg, bg = onedark_colors.blue, gui = 'bold' } },
+      visual = { a = { fg = onedark_colors.bg, bg = onedark_colors.purple, gui = 'bold' } },
+      terminal = { a = { fg = onedark_colors.bg, bg = onedark_colors.cyan, gui = 'bold' } },
+      replace = { a = { fg = onedark_colors.bg, bg = onedark_colors.red1, gui = 'bold' } },
       inactive = {
-        a = { fg = colors.gray1, bg = colors.bg, gui = 'bold' },
-        b = { fg = colors.gray1, bg = colors.bg },
-        c = { fg = colors.gray1, bg = colors.gray2 },
+        a = { fg = onedark_colors.gray1, bg = onedark_colors.bg, gui = 'bold' },
+        b = { fg = onedark_colors.gray1, bg = onedark_colors.bg },
+        c = { fg = onedark_colors.gray1, bg = onedark_colors.gray2 },
       },
     }
 
     -- Import color theme based on environment variable NVIM_THEME
-    local env_var_nvim_theme = os.getenv 'NVIM_THEME' or 'nord'
+    local env_var_nvim_theme = os.getenv 'NVIM_THEME' or 'synthwave'
 
     -- Define a table of themes
     local themes = {
+      synthwave = synthwave_theme,
       onedark = onedark_theme,
       nord = 'nord',
     }

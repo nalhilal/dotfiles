@@ -50,7 +50,7 @@ local plugins = {
   --  require 'plugins.harpoon',
   --  require 'plugins.avante',
   --  require 'plugins.aerial',
-  --  require 'plugins.vim-tmux-navigator',
+  require 'plugins.vim-tmux-navigator',
 }
 
 if themes[env_var_nvim_theme] then
