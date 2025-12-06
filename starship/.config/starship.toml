@@ -3,15 +3,15 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-[](fg:neon_pink)\
+[](fg:synthwave_purple)\
 $os\
 $username\
-[](bg:hot_pink fg:neon_pink)\
+[](bg:electric_blue fg:synthwave_purple)\
 $directory\
-[](bg:electric_blue fg:hot_pink)\
+[](bg:hot_pink fg:electric_blue)\
 $git_branch\
 $git_status\
-[](bg:neon_green fg:electric_blue)\
+[](bg:neon_green fg:hot_pink)\
 $c\
 $rust\
 $golang\
@@ -26,9 +26,10 @@ $zig\
 [](bg:laser_yellow fg:neon_green)\
 $docker_context\
 $conda\
-[](bg:synthwave_purple fg:laser_yellow)\
+[](bg:electric_cyan fg:laser_yellow)\
 $time\
-$cmd_duration[](fg:synthwave_purple)\
+[](bg:neon_pink fg:electric_cyan)\
+$cmd_duration[](fg:neon_pink)\
 $line_break\
 $character"""
 
@@ -41,7 +42,7 @@ palette = 'synthwave_2077'
 
 [os]
 disabled = false
-style = "bg:neon_pink fg:void"
+style = "bg:synthwave_purple fg:void"
 
 [os.symbols]
 Windows = "󰍲"
@@ -69,8 +70,8 @@ NixOS = ""
 
 [username]
 show_always = true
-style_user = "bg:neon_pink fg:void"
-style_root = "bg:neon_pink fg:void"
+style_user = "bg:synthwave_purple fg:void"
+style_root = "bg:synthwave_purple fg:void"
 format = '[ $user]($style)'
 
 # ═══════════════════════════════════════════════════════════════
@@ -78,8 +79,8 @@ format = '[ $user]($style)'
 # ═══════════════════════════════════════════════════════════════
 
 [directory]
-style = "bg:hot_pink fg:void"
-format = "[[  $path ](bg:hot_pink fg:void)]($style)"
+style = "bg:electric_blue fg:void"
+format = "[[  $path ](bg:electric_blue fg:void)]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
@@ -98,12 +99,12 @@ truncation_symbol = "…/"
 
 [git_branch]
 symbol = ""
-style = "bg:electric_blue"
-format = '[[ $symbol $branch ](fg:void bg:electric_blue)]($style)'
+style = "bg:hot_pink"
+format = '[[ $symbol $branch ](fg:void bg:hot_pink)]($style)'
 
 [git_status]
-style = "bg:electric_blue"
-format = '[[($all_status$ahead_behind )](fg:void bg:electric_blue)]($style)'
+style = "bg:hot_pink"
+format = '[[($all_status$ahead_behind )](fg:void bg:hot_pink)]($style)'
 conflicted = "󰞇 "
 ahead = "⇡${count} "
 behind = "⇣${count} "
@@ -196,8 +197,8 @@ ignore_base = false
 [time]
 disabled = false
 time_format = "%R"
-style = "bg:synthwave_purple"
-format = '[[  $time ](fg:void bg:synthwave_purple)]($style)'
+style = "bg:electric_cyan"
+format = '[[  $time ](fg:void bg:electric_cyan)]($style)'
 
 # ═══════════════════════════════════════════════════════════════
 #                      PROMPT CHARS
@@ -217,8 +218,8 @@ vimcmd_visual_symbol = '[❮](bold fg:laser_yellow)'
 
 [cmd_duration]
 show_milliseconds = false
-format = '[[  $duration](fg:electric_cyan)]($style)'
-style = "bold"
+format = '[ $duration]($style)'
+style = "bold bg:neon_pink fg:text"
 disabled = false
 min_time = 2000
 
