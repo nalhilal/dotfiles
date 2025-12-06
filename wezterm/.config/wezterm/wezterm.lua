@@ -81,6 +81,11 @@ config.window_close_confirmation = "NeverPrompt"
 config.window_decorations = "RESIZE"
 config.window_padding = padding_config
 
+-- Tmux integration - auto-launch tmux on startup
+local shell = os.getenv("SHELL") or "/bin/sh"
+config.default_prog = { shell, "-l", "-c", "--", "tmux new-session -As0" }
+config.skip_close_confirmation_for_processes_named = { "bash", "sh", "zsh", "tmux" }
+
 -- Linux-specific settings from local config
 if is_linux() then
   config.enable_wayland = false
