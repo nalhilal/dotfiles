@@ -44,12 +44,13 @@ You can also use [GNU Stow](https://www.gnu.org/software/stow/) directly:
 
 ```bash
 # Install all configs
-stow nvim lazygit starship wezterm zsh
+stow nvim lazygit starship tmux wezterm zsh
 
 # Or install individually
 stow nvim
 stow lazygit
 stow starship
+stow tmux
 stow wezterm
 stow zsh
 ```
@@ -69,8 +70,9 @@ A Lua-based Neovim configuration using [lazy.nvim](https://github.com/folke/lazy
 - Fuzzy finding with Telescope
 - Treesitter syntax highlighting
 - Git integration with gitsigns and fugitive
-- Custom Synthwave 2077 color scheme
+- Custom Synthwave 2077 color scheme in lualine
 - Transparent background support
+- Seamless tmux integration with vim-tmux-navigator
 
 To install: `stow nvim` and launch Neovim. Plugins will install automatically.
 
@@ -94,6 +96,38 @@ Cross-shell prompt with a custom Synthwave 2077 theme featuring:
 - Time display with matching color palette
 
 To install: `stow starship`
+
+### Tmux
+
+Terminal multiplexer configuration with Synthwave 2077 theming:
+- Vim-style keybindings for pane navigation (h/j/k/l)
+- Seamless integration with Neovim via vim-tmux-navigator
+- TPM (Tmux Plugin Manager) with useful plugins
+- Session persistence with tmux-resurrect and tmux-continuum
+- CPU/Memory monitoring display
+- Custom status bar styling
+
+**Plugins** (managed by TPM):
+- `tpm` - Tmux Plugin Manager
+- `vim-tmux-navigator` - Seamless navigation between tmux panes and vim splits
+- `tmux-resurrect` - Save and restore tmux sessions
+- `tmux-continuum` - Automatic session saving
+- `tmux-cpu-mem-monitor` - System resource monitoring
+
+To install: `stow tmux`, then install plugins with `prefix + I` (Ctrl-a + Shift-i)
+
+**⚠️ TODO**: Convert tmux plugins from embedded repositories to proper git submodules:
+```bash
+# Remove embedded repos
+git rm --cached tmux/.config/tmux/plugins/*
+
+# Add as submodules instead
+git submodule add https://github.com/tmux-plugins/tpm tmux/.config/tmux/plugins/tpm
+git submodule add https://github.com/christoomey/vim-tmux-navigator tmux/.config/tmux/plugins/vim-tmux-navigator
+git submodule add https://github.com/tmux-plugins/tmux-resurrect tmux/.config/tmux/plugins/tmux-resurrect
+git submodule add https://github.com/tmux-plugins/tmux-continuum tmux/.config/tmux/plugins/tmux-continuum
+# Add other plugins as needed
+```
 
 ### WezTerm
 
@@ -140,7 +174,6 @@ Configurations I plan to add:
 - **eza** - Modern replacement for ls with icons and colors
 - **fd** - Fast and user-friendly alternative to find
 - **ripgrep** - Fast search tool
-- **tmux** - Terminal multiplexer
 - **lazydocker** - Terminal UI for docker
 - **git** - Version control configuration
 - **yazi** - Terminal file manager
