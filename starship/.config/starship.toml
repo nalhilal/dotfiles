@@ -80,27 +80,18 @@ format = '[ $user]($style)'
 
 [directory]
 style = "bg:electric_blue fg:void"
-format = "[[  $path ](bg:electric_blue fg:void)]($style)"
+format = "[[ 󰉋 $path ](bg:electric_blue fg:void)]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
-
-[directory.substitutions]
-"Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = "󰝚 "
-"Pictures" = " "
-"Developer" = "󰲋 "
-"Projects" = "󰳐 "
-"~" = "󰋜 "
 
 # ═══════════════════════════════════════════════════════════════
 #                          GIT
 # ═══════════════════════════════════════════════════════════════
 
 [git_branch]
-symbol = ""
+symbol = " "
 style = "bg:hot_pink"
-format = '[[ $symbol $branch ](fg:void bg:hot_pink)]($style)'
+format = '[[ $symbol$branch ](fg:void bg:hot_pink)]($style)'
 
 [git_status]
 style = "bg:hot_pink"
@@ -121,7 +112,7 @@ deleted = "󰍴 "
 # ═══════════════════════════════════════════════════════════════
 
 [c]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
@@ -131,47 +122,47 @@ style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [golang]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [nodejs]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [php]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [java]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [kotlin]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [haskell]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [python]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version)(\($virtualenv\)) ](fg:void bg:neon_green)]($style)'
 
 [lua]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [zig]
-symbol = ""
+symbol = " "
 style = "bg:neon_green"
 format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
@@ -180,7 +171,7 @@ format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 # ═══════════════════════════════════════════════════════════════
 
 [docker_context]
-symbol = ""
+symbol = " "
 style = "bg:laser_yellow"
 format = '[[ $symbol$context ](fg:void bg:laser_yellow)]($style)'
 
@@ -198,7 +189,7 @@ ignore_base = false
 disabled = false
 time_format = "%R"
 style = "bg:electric_cyan"
-format = '[[  $time ](fg:void bg:electric_cyan)]($style)'
+format = '[[  $time ](fg:void bg:electric_cyan)]($style)'
 
 # ═══════════════════════════════════════════════════════════════
 #                      PROMPT CHARS
