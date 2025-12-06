@@ -34,6 +34,11 @@ setup_test_env() {
     mkdir -p "$MOCK_HOME/.config"
     mkdir -p "$MOCK_DOTFILES"
 
+    # Create macOS Library structure if on macOS
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        mkdir -p "$MOCK_HOME/Library/Application Support"
+    fi
+
     # Create mock dotfiles structure
     mkdir -p "$MOCK_DOTFILES/nvim/.config/nvim"
     mkdir -p "$MOCK_DOTFILES/lazygit/.config/lazygit"
@@ -57,14 +62,23 @@ package=$1
 dotfiles_dir=$(pwd)
 target_dir="$HOME/.config"
 
+# Detect OS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    is_macos=true
+else
+    is_macos=false
+fi
+
 case "$package" in
     nvim)
         mkdir -p "$HOME/.config/nvim"
         ln -sf "$dotfiles_dir/nvim/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
         ;;
     lazygit)
+        # lazygit always stows to XDG location
         mkdir -p "$HOME/.config/lazygit"
         ln -sf "$dotfiles_dir/lazygit/.config/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
+        # On macOS, setup_lazygit() will create additional symlinks from Library location
         ;;
     starship)
         ln -sf "$dotfiles_dir/starship/.config/starship.toml" "$HOME/.config/starship.toml"

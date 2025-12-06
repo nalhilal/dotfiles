@@ -34,6 +34,7 @@ When stowed from `~/.dotfiles`, files are symlinked to their target locations (e
    - Executes package-specific setup functions
 
 3. **Special Package Handlers**:
+   - **lazygit**: On macOS, creates symlinks from `~/Library/Application Support/lazygit/` to `~/.config/lazygit/` (see Lazygit Cross-Platform Handling below)
    - **zsh**: Creates `~/.zshenv` with ZDOTDIR, placeholder `~/.zshrc`, and `.zshrc.local`
    - **starship**: Checks/installs binary, detects shell, offers zsh integration, adds init to RC files
 
@@ -212,9 +213,34 @@ git push
 ```
 
 **Common Package Types:**
-- **Simple config-only** (like lazygit): Just stow the config files, no special setup needed
+- **Simple config-only** (like nvim, wezterm): Just stow the config files, no special setup needed
+- **Cross-platform config** (like lazygit): Needs OS-specific setup to handle different config locations
 - **Binary + config** (like starship): Needs `setup_package_name()` function to check/install binary and modify RC files
 - **Complex setup** (like zsh): Requires multiple file creation and special handling in setup function
+
+### Lazygit Cross-Platform Handling
+
+**CRITICAL**: Lazygit has different default config locations on macOS vs Linux:
+- **macOS**: `~/Library/Application Support/lazygit/config.yml`
+- **Linux**: `~/.config/lazygit/config.yml`
+
+**Our Solution**: We use stow to manage configs in XDG location (`~/.config/lazygit/`) on all platforms, then:
+1. On Linux: lazygit reads directly from `~/.config/lazygit/` (standard XDG location)
+2. On macOS: `setup_lazygit()` creates symlinks from Library location to XDG location:
+   - `~/Library/Application Support/lazygit/config.yml` -> `~/.config/lazygit/config.yml`
+   - `~/Library/Application Support/lazygit/ai-commit.sh` -> `~/.config/lazygit/ai-commit.sh`
+
+**Implementation Details**:
+- `is_already_stowed()`: Checks appropriate location based on OS (Library on macOS, XDG on Linux)
+- `backup_existing()`: Backs up both XDG and macOS Library locations if they exist
+- `setup_lazygit()`: Creates macOS symlinks after stowing (only on macOS)
+- `test_install.sh`: Mock stow creates XDG location; setup creates Library symlinks on macOS
+
+**Why This Approach**:
+- Single source of truth (stowed files in `~/.config/lazygit/`)
+- Works across macOS and Linux without duplicating config
+- Respects each OS's default config location
+- Allows custom scripts (like `ai-commit.sh`) to work seamlessly
 
 ### Zsh Special Handling
 
