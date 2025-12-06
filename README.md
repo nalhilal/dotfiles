@@ -107,19 +107,26 @@ Terminal multiplexer configuration with Synthwave 2077 theming:
 - CPU/Memory monitoring display
 - Custom status bar styling
 
-**Plugins** (managed by TPM):
+**Plugins** (managed as git submodules):
 - `tpm` - Tmux Plugin Manager
 - `vim-tmux-navigator` - Seamless navigation between tmux panes and vim splits
 - `tmux-resurrect` - Save and restore tmux sessions
 - `tmux-continuum` - Automatic session saving
 - `tmux-cpu-mem-monitor` - System resource monitoring
 
-To install: `stow tmux`, then install plugins with `prefix + I` (Ctrl-a + Shift-i)
-
-**Note**: Tmux plugins are managed as git submodules. When cloning this repo fresh, initialize submodules with:
+**Installation**:
 ```bash
-git submodule update --init --recursive
+./install.sh tmux  # Recommended - automatically initializes submodules
+# OR
+stow tmux && git submodule update --init --recursive  # Manual method
 ```
+
+The install script automatically:
+1. Initializes git submodules for tmux plugins
+2. Stows the configuration to `~/.config/tmux/`
+3. Plugins load automatically when tmux starts
+
+**Important**: The config uses `~/.config/tmux/plugins/` (XDG directory) not `~/.tmux/plugins/`
 
 ### WezTerm
 

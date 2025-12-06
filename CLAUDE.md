@@ -34,6 +34,7 @@ When stowed from `~/.dotfiles`, files are symlinked to their target locations (e
    - Executes package-specific setup functions
 
 3. **Special Package Handlers**:
+   - **tmux**: Initializes git submodules for plugins (TPM and plugins), verifies plugin directory structure (see Tmux Git Submodules below)
    - **lazygit**: On macOS, creates symlinks from `~/Library/Application Support/lazygit/` to `~/.config/lazygit/` (see Lazygit Cross-Platform Handling below)
    - **zsh**: Creates `~/.zshenv` with ZDOTDIR, placeholder `~/.zshrc`, and `.zshrc.local`
    - **starship**: Checks/installs binary, detects shell, offers zsh integration, adds init to RC files
@@ -216,7 +217,33 @@ git push
 - **Simple config-only** (like nvim, wezterm): Just stow the config files, no special setup needed
 - **Cross-platform config** (like lazygit): Needs OS-specific setup to handle different config locations
 - **Binary + config** (like starship): Needs `setup_package_name()` function to check/install binary and modify RC files
+- **Git submodules** (like tmux): Requires submodule initialization in setup function
 - **Complex setup** (like zsh): Requires multiple file creation and special handling in setup function
+
+### Tmux Git Submodules
+
+**CRITICAL**: Tmux plugins are managed as git submodules, not installed via package manager or TPM's install mechanism.
+
+**Architecture**:
+- Plugins are in `tmux/.config/tmux/plugins/` (XDG location, NOT `~/.tmux/plugins/`)
+- Each plugin is a git submodule defined in `.gitmodules`
+- TPM itself is a submodule that loads other submodules
+- Config file MUST reference `~/.config/tmux/plugins/tpm/tpm` not `~/.tmux/plugins/tpm/tpm`
+
+**Implementation Details**:
+- `setup_tmux()`: Checks if `tpm/tpm` executable exists, runs `git submodule update --init --recursive` if missing
+- `is_already_stowed()`: No special handling needed - checks standard XDG location
+- `backup_existing()`: No special handling needed - backs up `~/.config/tmux` if it exists
+- `test_install.sh`: Creates mock plugin directories and mock `tpm` executable; mock git command simulates submodule init
+
+**Why This Approach**:
+- Git submodules ensure plugins are version-controlled and reproducible
+- No need to run `prefix + I` manually after installation
+- Single `git submodule update --init --recursive` initializes all plugins at once
+- Plugins work immediately after stowing and submodule init
+- Consistent with dotfiles philosophy: everything in version control
+
+**Common Gotcha**: If tmux config references wrong path (`~/.tmux/plugins/` instead of `~/.config/tmux/plugins/`), TPM won't load and plugins won't work. Always use XDG paths.
 
 ### Lazygit Cross-Platform Handling
 

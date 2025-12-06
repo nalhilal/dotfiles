@@ -43,7 +43,7 @@ setup_test_env() {
     mkdir -p "$MOCK_DOTFILES/nvim/.config/nvim"
     mkdir -p "$MOCK_DOTFILES/lazygit/.config/lazygit"
     mkdir -p "$MOCK_DOTFILES/starship/.config"
-    mkdir -p "$MOCK_DOTFILES/tmux/.config/tmux"
+    mkdir -p "$MOCK_DOTFILES/tmux/.config/tmux/plugins/tpm"
     mkdir -p "$MOCK_DOTFILES/wezterm/.config/wezterm"
     mkdir -p "$MOCK_DOTFILES/zsh/.config/zsh"
 
@@ -51,6 +51,8 @@ setup_test_env() {
     echo "mock lazygit config" > "$MOCK_DOTFILES/lazygit/.config/lazygit/config.yml"
     echo "mock starship config" > "$MOCK_DOTFILES/starship/.config/starship.toml"
     echo "mock tmux config" > "$MOCK_DOTFILES/tmux/.config/tmux/tmux.conf"
+    echo "#!/usr/bin/env bash" > "$MOCK_DOTFILES/tmux/.config/tmux/plugins/tpm/tpm"
+    chmod +x "$MOCK_DOTFILES/tmux/.config/tmux/plugins/tpm/tpm"
     echo "mock wezterm config" > "$MOCK_DOTFILES/wezterm/.config/wezterm/wezterm.lua"
     echo "mock zsh config" > "$MOCK_DOTFILES/zsh/.config/zsh/.zshrc"
     echo "mock zsh env" > "$MOCK_DOTFILES/zsh/.config/zsh/.zshenv"
@@ -102,6 +104,20 @@ esac
 echo "stow: simulating stow $package"
 EOF
     chmod +x "$TEST_DIR/stow"
+
+    # Create mock git command to handle submodule operations
+    cat > "$TEST_DIR/git" << 'EOF'
+#!/usr/bin/env bash
+# Mock git command for testing
+if [ "$1" = "submodule" ] && [ "$2" = "update" ]; then
+    # Simulate successful submodule initialization
+    echo "Submodule path 'tmux/.config/tmux/plugins/tpm': cloned"
+    exit 0
+fi
+# Pass through to real git for other operations
+exec /usr/bin/git "$@"
+EOF
+    chmod +x "$TEST_DIR/git"
 
     echo -e "${CYAN}Test environment created at: $TEST_DIR${NC}"
 }

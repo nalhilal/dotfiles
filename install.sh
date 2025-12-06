@@ -2,7 +2,7 @@
 #
 # Dotfiles Installation Script
 # Supports both interactive and non-interactive modes
-# Compatible with bash and zsh
+# Runs in bash but detects and configures user's shell (bash/zsh/fish)
 
 set -e
 
@@ -343,6 +343,9 @@ install_package() {
 
         # Special handling for specific packages
         case "$package" in
+            tmux)
+                setup_tmux
+                ;;
             lazygit)
                 setup_lazygit
                 ;;
@@ -359,6 +362,36 @@ install_package() {
         print_error "Stow output: $stow_output"
         return 1
     fi
+}
+
+setup_tmux() {
+    print_info "Setting up tmux plugins..."
+
+    # Tmux plugins are managed as git submodules
+    # Check if submodules are initialized
+    if [ ! -f "$DOTFILES_DIR/tmux/.config/tmux/plugins/tpm/tpm" ]; then
+        print_info "Initializing tmux plugin submodules..."
+
+        cd "$DOTFILES_DIR" || {
+            print_error "Failed to change to dotfiles directory"
+            return 1
+        }
+
+        if git submodule update --init --recursive -- tmux/.config/tmux/plugins 2>&1 | grep -q "Cloning\|Submodule"; then
+            print_success "Tmux plugins initialized successfully"
+        else
+            print_error "Failed to initialize tmux plugin submodules"
+            print_info "You can manually run: ${CYAN}cd $DOTFILES_DIR && git submodule update --init --recursive${NC}"
+            return 1
+        fi
+    else
+        print_info "Tmux plugins already initialized"
+    fi
+
+    print_success "Tmux setup complete!"
+    print_info "Start tmux and the plugins will load automatically"
+    print_info "Or reload tmux config with: ${CYAN}Ctrl+Space then r${NC}"
+    return 0
 }
 
 setup_lazygit() {
