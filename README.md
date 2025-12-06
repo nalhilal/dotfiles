@@ -116,17 +116,9 @@ Terminal multiplexer configuration with Synthwave 2077 theming:
 
 To install: `stow tmux`, then install plugins with `prefix + I` (Ctrl-a + Shift-i)
 
-**⚠️ TODO**: Convert tmux plugins from embedded repositories to proper git submodules:
+**Note**: Tmux plugins are managed as git submodules. When cloning this repo fresh, initialize submodules with:
 ```bash
-# Remove embedded repos
-git rm --cached tmux/.config/tmux/plugins/*
-
-# Add as submodules instead
-git submodule add https://github.com/tmux-plugins/tpm tmux/.config/tmux/plugins/tpm
-git submodule add https://github.com/christoomey/vim-tmux-navigator tmux/.config/tmux/plugins/vim-tmux-navigator
-git submodule add https://github.com/tmux-plugins/tmux-resurrect tmux/.config/tmux/plugins/tmux-resurrect
-git submodule add https://github.com/tmux-plugins/tmux-continuum tmux/.config/tmux/plugins/tmux-continuum
-# Add other plugins as needed
+git submodule update --init --recursive
 ```
 
 ### WezTerm
