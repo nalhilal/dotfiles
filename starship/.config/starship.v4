@@ -3,15 +3,15 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-[](fg:neon_pink)\
+[](neon_pink)\
 $os\
 $username\
-[](bg:hot_pink fg:neon_pink)\
+[](bg:hot_pink fg:neon_pink)\
 $directory\
-[](bg:electric_blue fg:hot_pink)\
+[](bg:electric_blue fg:hot_pink)\
 $git_branch\
 $git_status\
-[](bg:neon_green fg:electric_blue)\
+[](fg:electric_blue bg:neon_green)\
 $c\
 $rust\
 $golang\
@@ -23,12 +23,13 @@ $haskell\
 $python\
 $lua\
 $zig\
-[](bg:laser_yellow fg:neon_green)\
+[](fg:neon_green bg:laser_yellow)\
 $docker_context\
 $conda\
-[](bg:synthwave_purple fg:laser_yellow)\
+[](fg:laser_yellow bg:synthwave_purple)\
 $time\
-$cmd_duration[](fg:synthwave_purple)\
+[](fg:synthwave_purple)\
+$cmd_duration\
 $line_break\
 $character"""
 
@@ -71,7 +72,7 @@ NixOS = ""
 show_always = true
 style_user = "bg:neon_pink fg:void"
 style_root = "bg:neon_pink fg:void"
-format = '[ $user]($style)'
+format = '[[ $user ](bg:neon_pink fg:void)]($style)'
 
 # ═══════════════════════════════════════════════════════════════
 #                        DIRECTORY
@@ -79,7 +80,7 @@ format = '[ $user]($style)'
 
 [directory]
 style = "bg:hot_pink fg:void"
-format = "[[  $path ](bg:hot_pink fg:void)]($style)"
+format = '[[  $path ](bg:hot_pink fg:void)]($style)'
 truncation_length = 3
 truncation_symbol = "…/"
 
@@ -99,11 +100,11 @@ truncation_symbol = "…/"
 [git_branch]
 symbol = ""
 style = "bg:electric_blue"
-format = '[[ $symbol $branch ](fg:void bg:electric_blue)]($style)'
+format = '[[  $symbol $branch ](fg:void bg:electric_blue)]($style)'
 
 [git_status]
 style = "bg:electric_blue"
-format = '[[($all_status$ahead_behind )](fg:void bg:electric_blue)]($style)'
+format = '[[($all_status$ahead_behind)](fg:void bg:electric_blue)]($style)'
 conflicted = "󰞇 "
 ahead = "⇡${count} "
 behind = "⇣${count} "
@@ -122,57 +123,57 @@ deleted = "󰍴 "
 [c]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [rust]
 symbol = "󱘗"
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [golang]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [nodejs]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [php]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [java]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [kotlin]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [haskell]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [python]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version)(\($virtualenv\)) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version)(\($virtualenv\)) ](fg:void bg:neon_green)]($style)'
 
 [lua]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [zig]
 symbol = ""
 style = "bg:neon_green"
-format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
+format = '[[  $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 # ═══════════════════════════════════════════════════════════════
 #                    CONTAINERS & ENV
@@ -181,12 +182,12 @@ format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 [docker_context]
 symbol = ""
 style = "bg:laser_yellow"
-format = '[[ $symbol$context ](fg:void bg:laser_yellow)]($style)'
+format = '[[  $symbol$context ](fg:void bg:laser_yellow)]($style)'
 
 [conda]
 symbol = "󱔎"
 style = "bg:laser_yellow fg:void"
-format = '[[ $symbol $environment ](fg:void bg:laser_yellow)]($style)'
+format = '[[  $symbol $environment ](fg:void bg:laser_yellow)]($style)'
 ignore_base = false
 
 # ═══════════════════════════════════════════════════════════════
@@ -208,16 +209,16 @@ disabled = false
 
 [character]
 disabled = false
-success_symbol = '[❯](bold fg:neon_green)'
-error_symbol = '[❯](bold fg:neon_pink)'
-vimcmd_symbol = '[❮](bold fg:electric_cyan)'
-vimcmd_replace_one_symbol = '[❮](bold fg:hot_pink)'
-vimcmd_replace_symbol = '[❮](bold fg:hot_pink)'
-vimcmd_visual_symbol = '[❮](bold fg:laser_yellow)'
+success_symbol = '[󰘧](bold fg:neon_green)'
+error_symbol = '[󰘧](bold fg:neon_pink)'
+vimcmd_symbol = '[󰘨](bold fg:electric_cyan)'
+vimcmd_replace_one_symbol = '[󰘨](bold fg:hot_pink)'
+vimcmd_replace_symbol = '[󰘨](bold fg:hot_pink)'
+vimcmd_visual_symbol = '[󰘨](bold fg:laser_yellow)'
 
 [cmd_duration]
 show_milliseconds = false
-format = '[[  $duration](fg:electric_cyan)]($style)'
+format = '[[  $duration ](fg:electric_cyan)]($style)'
 style = "bold"
 disabled = false
 min_time = 2000
@@ -255,6 +256,28 @@ symbol = "󰏗 "
 style = "bold electric_blue"
 format = '[$symbol$version]($style) '
 disabled = true
+
+[aws]
+symbol = "󰸏 "
+style = "bold laser_yellow"
+format = '[$symbol($profile )(\($region\) )]($style)'
+disabled = true
+
+[kubernetes]
+symbol = "󱃾 "
+style = "bold electric_blue"
+format = '[$symbol$context( \($namespace\))]($style) '
+disabled = true
+
+[terraform]
+symbol = "󱁢 "
+style = "bold synthwave_purple"
+format = '[$symbol$workspace]($style) '
+
+[nix_shell]
+symbol = " "
+style = "bold electric_cyan"
+format = '[$symbol$state( \($name\))]($style) '
 
 [status]
 disabled = false
@@ -321,71 +344,83 @@ subtext = "#00d4b1"
 muted = "#6766b3"
 
 # ═══════════════════════════════════════════════════════════════
-#         ALTERNATIVE PALETTE: SYNTHWAVE SUNSET
-#   To use: change palette = 'synthwave_2077' to 'synthwave_sunset'
+#              ALTERNATIVE PALETTES (uncomment to use)
 # ═══════════════════════════════════════════════════════════════
 
-[palettes.synthwave_sunset]
-neon_pink = "#ff2a6d"
-hot_pink = "#ff6b9d"
-magenta = "#d926a9"
-electric_pink = "#ff36ab"
-neon_green = "#05ffa1"
-mint = "#00ffc8"
-electric_cyan = "#01cdfe"
-electric_blue = "#6078ea"
-sky_blue = "#7b8cff"
-soft_blue = "#b967ff"
-laser_yellow = "#fffb96"
-neon_yellow = "#fcf340"
-lime = "#d4fc79"
-synthwave_purple = "#b14aff"
-deep_purple = "#7c1aff"
-midnight_purple = "#4a0e78"
-cyan = "#05d9e8"
-aqua = "#65dfc9"
-void = "#0d0221"
-dark_void = "#0a0118"
-abyss = "#050010"
-deep_space = "#120338"
-error_red = "#ff124f"
-warning_amber = "#ff9a00"
-success_green = "#39ff14"
-text = "#f8f8ff"
-subtext = "#d1c4e9"
-muted = "#6c5b7b"
+# [palettes.synthwave_sunset]
+# # Warmer variant with orange/red gradient flow
+# neon_pink = "#ff2a6d"
+# hot_pink = "#ff6b9d"
+# magenta = "#d926a9"
+# electric_pink = "#ff36ab"
+#
+# neon_green = "#05ffa1"
+# mint = "#00ffc8"
+# electric_cyan = "#01cdfe"
+#
+# electric_blue = "#6078ea"
+# sky_blue = "#7b8cff"
+# soft_blue = "#b967ff"
+#
+# laser_yellow = "#fffb96"
+# neon_yellow = "#fcf340"
+# lime = "#d4fc79"
+#
+# synthwave_purple = "#b14aff"
+# deep_purple = "#7c1aff"
+# midnight_purple = "#4a0e78"
+#
+# cyan = "#05d9e8"
+# aqua = "#65dfc9"
+#
+# void = "#0d0221"
+# dark_void = "#0a0118"
+# abyss = "#050010"
+# deep_space = "#120338"
+#
+# error_red = "#ff124f"
+# warning_amber = "#ff9a00"
+# success_green = "#39ff14"
+#
+# text = "#f8f8ff"
+# subtext = "#d1c4e9"
+# muted = "#6c5b7b"
 
-# ═══════════════════════════════════════════════════════════════
-#         ALTERNATIVE PALETTE: SYNTHWAVE OCEAN
-#   To use: change palette = 'synthwave_2077' to 'synthwave_ocean'
-# ═══════════════════════════════════════════════════════════════
+# [palettes.synthwave_ocean]
+# Cool blue/teal dominant variant
+# neon_pink = "#f72585"
+# hot_pink = "#b5179e"
+# magenta = "#7209b7"
+# electric_pink = "#ff5da2"
+#
+# neon_green = "#4cc9f0"
+# mint = "#80ffdb"
+# electric_cyan = "#72efdd"
+#
+# electric_blue = "#4361ee"
+# sky_blue = "#4895ef"
+# soft_blue = "#4cc9f0"
+#
+# laser_yellow = "#f7ff58"
+# neon_yellow = "#d8f038"
+# lime = "#ccff33"
+#
+# synthwave_purple = "#7209b7"
+# deep_purple = "#560bad"
+# midnight_purple = "#480ca8"
+#
+# cyan = "#00f5d4"
+# aqua = "#00bbf9"
+#
+# void = "#03071e"
+# dark_void = "#020515"
+# abyss = "#010409"
+# deep_space = "#0a1128"
 
-[palettes.synthwave_ocean]
-neon_pink = "#f72585"
-hot_pink = "#b5179e"
-magenta = "#7209b7"
-electric_pink = "#ff5da2"
-neon_green = "#4cc9f0"
-mint = "#80ffdb"
-electric_cyan = "#72efdd"
-electric_blue = "#4361ee"
-sky_blue = "#4895ef"
-soft_blue = "#4cc9f0"
-laser_yellow = "#f7ff58"
-neon_yellow = "#d8f038"
-lime = "#ccff33"
-synthwave_purple = "#7209b7"
-deep_purple = "#560bad"
-midnight_purple = "#480ca8"
-cyan = "#00f5d4"
-aqua = "#00bbf9"
-void = "#03071e"
-dark_void = "#020515"
-abyss = "#010409"
-deep_space = "#0a1128"
-error_red = "#ef233c"
-warning_amber = "#fca311"
-success_green = "#06d6a0"
-text = "#edf2f4"
-subtext = "#8ecae6"
-muted = "#457b9d"
+#error_red = "#ef233c"
+#warning_amber = "#fca311"
+#success_green = "#06d6a0"
+
+#text = "#edf2f4"
+#subtext = "#8ecae6"
+#muted = "#457b9d"
