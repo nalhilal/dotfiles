@@ -108,12 +108,113 @@ When adding new packages that require binary installation:
 
 ### Adding New Packages
 
-1. Create package directory: `package_name/.config/package_name/`
-2. Add to `AVAILABLE_PACKAGES` array in install.sh
-3. Add case in `is_already_stowed()` and `backup_existing()`
-4. If needs special setup, add case in `install_package()` calling `setup_package_name()`
-5. Create tests in test_install.sh
-6. Update README.md
+Follow these comprehensive steps when adding a new package to the dotfiles repository:
+
+**1. Prepare the Package Directory Structure**
+```bash
+# Create the package directory following stow convention
+mkdir -p package_name/.config/package_name/
+
+# Copy existing config to package directory
+cp ~/.config/package_name/config_file package_name/.config/package_name/
+
+# Create manual backup (install script will also backup during stow)
+mkdir -p ~/.dotfiles_backup/manual_$(date +%Y%m%d_%H%M%S)
+cp -r ~/.config/package_name ~/.dotfiles_backup/manual_$(date +%Y%m%d_%H%M%S)/
+```
+
+**2. Update install.sh**
+- Add package to `AVAILABLE_PACKAGES` array (keep alphabetical order)
+- Add case in `is_already_stowed()` function:
+  ```bash
+  package_name)
+      target_dir="$HOME/.config/package_name"
+      source_dir="$DOTFILES_DIR/package_name/.config/package_name"
+      ;;
+  ```
+- Add case in `backup_existing()` function:
+  ```bash
+  package_name)
+      if [ -e "$HOME/.config/package_name" ] && [ ! -L "$HOME/.config/package_name" ]; then
+          mkdir -p "$backup_dir" || { print_error "..."; return 1; }
+          mv "$HOME/.config/package_name" "$backup_dir/" || { print_error "..."; return 1; }
+          print_warning "Backed up existing package_name config to: $backup_dir"
+      fi
+      ;;
+  ```
+- If package needs special setup (like binary installation or RC file modifications), add case in `install_package()` calling `setup_package_name()`
+
+**3. Update test_install.sh**
+- Add package to mock dotfiles structure in `setup_test_env()`:
+  ```bash
+  mkdir -p "$MOCK_DOTFILES/package_name/.config/package_name"
+  echo "mock package config" > "$MOCK_DOTFILES/package_name/.config/package_name/config.yml"
+  ```
+- Add case to mock stow command:
+  ```bash
+  package_name)
+      mkdir -p "$HOME/.config/package_name"
+      ln -sf "$dotfiles_dir/package_name/.config/package_name/config.yml" "$HOME/.config/package_name/config.yml"
+      ;;
+  ```
+- Update `AVAILABLE_PACKAGES` array in `test_error_handling()` test
+
+**4. Test and Install**
+```bash
+# Remove original config directory (will be replaced by symlink)
+rm -rf ~/.config/package_name
+
+# Run install script for the new package
+./install.sh package_name
+
+# Verify symlinks are correct
+ls -la ~/.config/package_name/
+readlink -f ~/.config/package_name  # Should point to ~/.dotfiles/package_name/.config/package_name
+
+# Run full test suite
+bash test_install.sh
+```
+
+**5. Update README.md**
+- Add package section in "What's Included" (keep alphabetical order)
+- Remove from "Planned Additions" if listed there
+- Add to manual installation examples:
+  ```bash
+  stow package_name
+  ```
+
+**6. Update CLAUDE.md**
+- Add any package-specific gotchas or special handling notes
+- Update examples in relevant sections if the package introduces new patterns
+
+**7. Verify and Commit**
+```bash
+# Check git status to see all changes
+git status
+
+# Verify package works with the stowed config
+# (test the actual application)
+
+# Run test suite one final time
+bash test_install.sh
+
+# Commit changes (will use proper commit message format)
+git add .
+git commit -m "Add package_name to dotfiles
+
+- Create package_name package directory structure
+- Add to install.sh and test_install.sh
+- Update README.md documentation
+- Verify symlinks and test installation"
+
+# Push to remote
+git push
+```
+
+**Common Package Types:**
+- **Simple config-only** (like lazygit): Just stow the config files, no special setup needed
+- **Binary + config** (like starship): Needs `setup_package_name()` function to check/install binary and modify RC files
+- **Complex setup** (like zsh): Requires multiple file creation and special handling in setup function
 
 ### Zsh Special Handling
 

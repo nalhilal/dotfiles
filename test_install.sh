@@ -36,11 +36,13 @@ setup_test_env() {
 
     # Create mock dotfiles structure
     mkdir -p "$MOCK_DOTFILES/nvim/.config/nvim"
+    mkdir -p "$MOCK_DOTFILES/lazygit/.config/lazygit"
     mkdir -p "$MOCK_DOTFILES/starship/.config"
     mkdir -p "$MOCK_DOTFILES/wezterm/.config/wezterm"
     mkdir -p "$MOCK_DOTFILES/zsh/.config/zsh"
 
     echo "mock nvim config" > "$MOCK_DOTFILES/nvim/.config/nvim/init.lua"
+    echo "mock lazygit config" > "$MOCK_DOTFILES/lazygit/.config/lazygit/config.yml"
     echo "mock starship config" > "$MOCK_DOTFILES/starship/.config/starship.toml"
     echo "mock wezterm config" > "$MOCK_DOTFILES/wezterm/.config/wezterm/wezterm.lua"
     echo "mock zsh config" > "$MOCK_DOTFILES/zsh/.config/zsh/.zshrc"
@@ -59,6 +61,10 @@ case "$package" in
     nvim)
         mkdir -p "$HOME/.config/nvim"
         ln -sf "$dotfiles_dir/nvim/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+        ;;
+    lazygit)
+        mkdir -p "$HOME/.config/lazygit"
+        ln -sf "$dotfiles_dir/lazygit/.config/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
         ;;
     starship)
         ln -sf "$dotfiles_dir/starship/.config/starship.toml" "$HOME/.config/starship.toml"
@@ -380,7 +386,7 @@ test_error_handling() {
 
     # Test with invalid package name
     local invalid_pkg="nonexistent"
-    local available_packages=("nvim" "starship" "wezterm" "zsh")
+    local available_packages=("git" "lazygit" "nvim" "starship" "wezterm" "zsh")
 
     if [[ " ${available_packages[*]} " =~ " $invalid_pkg " ]]; then
         assert_true "false" "Should reject invalid package name"

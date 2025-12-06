@@ -29,7 +29,7 @@ fi
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Available packages
-AVAILABLE_PACKAGES=("git" "nvim" "starship" "wezterm" "zsh")
+AVAILABLE_PACKAGES=("git" "lazygit" "nvim" "starship" "wezterm" "zsh")
 
 # Functions
 print_header() {
@@ -148,6 +148,10 @@ is_already_stowed() {
             target_dir="$HOME/.config/nvim"
             source_dir="$DOTFILES_DIR/nvim/.config/nvim"
             ;;
+        lazygit)
+            target_dir="$HOME/.config/lazygit"
+            source_dir="$DOTFILES_DIR/lazygit/.config/lazygit"
+            ;;
         starship)
             target_dir="$HOME/.config/starship.toml"
             source_dir="$DOTFILES_DIR/starship/.config/starship.toml"
@@ -191,6 +195,19 @@ backup_existing() {
                     return 1
                 }
                 print_warning "Backed up existing nvim config to: $backup_dir"
+            fi
+            ;;
+        lazygit)
+            if [ -e "$HOME/.config/lazygit" ] && [ ! -L "$HOME/.config/lazygit" ]; then
+                mkdir -p "$backup_dir" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                mv "$HOME/.config/lazygit" "$backup_dir/" || {
+                    print_error "Failed to backup lazygit config"
+                    return 1
+                }
+                print_warning "Backed up existing lazygit config to: $backup_dir"
             fi
             ;;
         starship)

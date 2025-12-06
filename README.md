@@ -44,10 +44,11 @@ You can also use [GNU Stow](https://www.gnu.org/software/stow/) directly:
 
 ```bash
 # Install all configs
-stow nvim starship wezterm zsh
+stow nvim lazygit starship wezterm zsh
 
 # Or install individually
 stow nvim
+stow lazygit
 stow starship
 stow wezterm
 stow zsh
@@ -72,6 +73,16 @@ A Lua-based Neovim configuration using [lazy.nvim](https://github.com/folke/lazy
 - Transparent background support
 
 To install: `stow nvim` and launch Neovim. Plugins will install automatically.
+
+### Lazygit
+
+Terminal UI for git with custom command integration:
+- AI-powered commit message generation using Claude Code
+- Custom keybinding (C) for generating conventional commit messages
+- Automatic commit message formatting with subject line and bullet points
+- No AI attribution or extra commentary in commits
+
+To install: `stow lazygit`
 
 ### Starship
 
@@ -130,7 +141,6 @@ Configurations I plan to add:
 - **fd** - Fast and user-friendly alternative to find
 - **ripgrep** - Fast search tool
 - **tmux** - Terminal multiplexer
-- **lazygit** - Terminal UI for git
 - **lazydocker** - Terminal UI for docker
 - **git** - Version control configuration
 - **yazi** - Terminal file manager

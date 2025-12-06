@@ -1,0 +1,5 @@
+customCommands:
+  - key: 'C'
+    command: 'git diff --cached | claude code "Analyze this git diff and output ONLY a conventional commit message. Format: subject line (50 chars max) followed by blank line and bullet points describing changes. No questions, no AI attribution, no emoji, no extra commentary. Just the commit message text." | git commit -F -'
+    context: 'files'
+    description: 'AI-generated commit message'
