@@ -1,0 +1,85 @@
+# Git Configuration
+# This file contains portable configuration for version control
+
+# Aliases
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+
+# Default branch name
+[init]
+	defaultBranch = master
+
+# Pull behavior
+[pull]
+	rebase = true 			 # Rebase (instead of merge) on pull
+
+# Push behavior
+[push]
+	autoSetupRemote = true   # Automatically set upstream branch on push
+
+# Diff settings
+[diff]
+	algorithm = histogram    # Clearer diffs on moved/edited lines
+	colorMoved = plain       # Highlight moved blocks in diffs
+	mnemonicPrefix = true    # More intuitive refs in diff output
+
+# Commit settings
+[commit]
+	verbose = true           # Include diff comment in commit message template
+
+# Column output
+[column]
+	ui = auto 			     # Output in columns when possible
+
+# Branch sorting
+[branch]
+	sort = -committerdate    # Sort branches by most recent commit first
+
+# Tag sorting
+[tag]
+	sort = -version:refname  # Sort version numbers as you would expect
+
+# Reuse recorded resolution
+[rerere]
+	enabled = true           # Record and reuse conflict resolutions
+	autoupdate = true        # Apply stored conflict resolutions automatically
+
+# Synthwave 2077 color scheme
+# Based on: Pink #ff7edb, Purple #b893ce, Cyan #72f1b8, Neon green #fede5d
+
+[color "status"]
+	changed = "#ff7edb bold"
+	modified = "#ff7edb bold"
+	untracked = "#ff7edb"
+	added = "#72f1b8 bold"
+	branch = "#b893ce bold"
+	header = "#fede5d"
+
+[color "diff"]
+	meta = "#b893ce"           # Metadata (purple)
+	frag = "#fede5d bold"      # Fragment headers @@ (neon yellow)
+	func = "#72f1b8"           # Function names (cyan)
+	old = "#ff7edb"            # Removed lines (pink)
+	new = "#72f1b8"            # Added lines (cyan)
+	context = "normal"         # Context lines (default)
+	commit = "#fede5d bold"    # Commit headers (neon yellow)
+	whitespace = "#ff7edb reverse"  # Whitespace errors (pink reverse)
+
+[color "branch"]
+	current = "#72f1b8 bold"   # Current branch (cyan)
+	local = "#b893ce"          # Local branches (purple)
+	remote = "#fede5d"         # Remote branches (neon yellow)
+	upstream = "#ff7edb"       # Upstream branch (pink)
+
+[color "decorate"]
+	branch = "#b893ce"         # Branch decorations (purple)
+	remoteBranch = "#fede5d"   # Remote branch decorations (neon yellow)
+	tag = "#ff7edb"            # Tag decorations (pink)
+	HEAD = "#72f1b8 bold"      # HEAD decoration (cyan)
+
+# Include machine-specific configuration (not version controlled)
+[include]
+	path = config.local

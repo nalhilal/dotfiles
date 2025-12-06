@@ -8,22 +8,24 @@ selection_fg = "#00d4b1"
 scrollbar_thumb = "#029b60"
 split = "#00d4b1"
 
-[colors.ansi]
-black = "#10d4b0"
-red = "#940303"
-green = "#0059ff"
-yellow = "#1a1b03"
-blue = "#004cf1"
-magenta = "#94058a"
-cyan = "#029790"
-white = "#311b92"
+ansi = [
+  "#10d4b0",  # black
+  "#ff7edb",  # red (Synthwave pink)
+  "#0059ff",  # green
+  "#1a1b03",  # yellow
+  "#004cf1",  # blue
+  "#94058a",  # magenta
+  "#029790",  # cyan
+  "#311b92",  # white
+]
 
-[colors.brights]
-black = "#02adf1"
-red = "#be0000"
-green = "#00ff9c"
-yellow = "#d0f30c"
-blue = "#00a2ff"
-magenta = "#e215d4"
-cyan = "#08e1d7"
-white = "#2eb8f8"
+brights = [
+  "#02adf1",  # black
+  "#ff6b9d",  # red (bright pink)
+  "#00ff9c",  # green
+  "#d0f30c",  # yellow
+  "#00a2ff",  # blue
+  "#e215d4",  # magenta
+  "#08e1d7",  # cyan
+  "#2eb8f8",  # white
+]

@@ -29,7 +29,7 @@ fi
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Available packages
-AVAILABLE_PACKAGES=("nvim" "starship" "wezterm" "zsh")
+AVAILABLE_PACKAGES=("git" "nvim" "starship" "wezterm" "zsh")
 
 # Functions
 print_header() {
