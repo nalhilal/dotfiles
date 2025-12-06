@@ -1,0 +1,279 @@
+# Starship Synthwave 2077 Theme
+# Inspired by Synthwave 2077 VS Code theme with Catppuccin-style segments
+
+format = """
+[](fg:#ff5680)\
+$os\
+$username\
+[](fg:#ff5680 bg:#00d482)\
+$directory\
+[](fg:#00d482 bg:#00a2ff)\
+$git_branch\
+$git_status\
+[](fg:#00a2ff bg:#fffd91)\
+$c\
+$rust\
+$golang\
+$nodejs\
+$php\
+$java\
+$kotlin\
+$haskell\
+$python\
+$lua\
+$zig\
+[](fg:#fffd91 bg:#C792EA)\
+$docker_context\
+$conda\
+[](fg:#C792EA bg:#00d4b1)\
+$time\
+[ ](fg:#00d4b1)\
+$line_break\
+$character"""
+
+# Disable the blank line at the start of the prompt
+add_newline = true
+
+# Synthwave palette reference:
+# Pink:   #ff5680, #fd7fd9, #ff009d, #ee6dff
+# Green:  #00d482, #00ff9c, #00d4b1
+# Blue:   #00a2ff, #6095ff, #82AAFF
+# Yellow: #fffd91, #d0f30c, #c8ff00
+# Purple: #C792EA, #6200ff, #311b92
+# Cyan:   #00d7d7, #00ffd5
+
+# OS Icon
+[os]
+disabled = false
+style = "bg:#ff5680 fg:#101116"
+
+[os.symbols]
+Windows = "󰍲"
+Ubuntu = "󰕈"
+SUSE = ""
+Raspbian = "󰐿"
+Mint = "󰣭"
+Macos = "󰀵"
+Manjaro = ""
+Linux = "󰌽"
+Gentoo = "󰣨"
+Fedora = "󰣛"
+Alpine = ""
+Amazon = ""
+Android = ""
+Arch = "󰣇"
+Artix = "󰣇"
+EndeavourOS = ""
+CentOS = ""
+Debian = "󰣚"
+Redhat = "󱄛"
+RedHatEnterprise = "󱄛"
+Pop = ""
+NixOS = ""
+
+# Username
+[username]
+show_always = true
+style_user = "bg:#ff5680 fg:#101116 bold"
+style_root = "bg:#ff5680 fg:#101116 bold"
+format = '[ $user ]($style)'
+disabled = false
+
+# Directory
+[directory]
+style = "bg:#00d482 fg:#101116"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = "󰝚 "
+"Pictures" = " "
+"Developer" = "󰲋 "
+"~" = " "
+
+# Git Branch
+[git_branch]
+symbol = ""
+style = "bg:#00a2ff fg:#101116"
+format = '[ $symbol $branch ]($style)'
+
+# Git Status
+[git_status]
+style = "bg:#00a2ff fg:#101116"
+format = '[$all_status$ahead_behind ]($style)'
+conflicted = " "
+ahead = "⇡${count} "
+behind = "⇣${count} "
+diverged = "⇕⇡${ahead_count}⇣${behind_count} "
+untracked = " "
+stashed = " "
+modified = " "
+staged = "✓ "
+renamed = "➜ "
+deleted = " "
+
+# Languages - Yellow background (#fffd91)
+[c]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[rust]
+symbol = "󱘗 "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[golang]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[nodejs]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[php]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[java]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[kotlin]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[haskell]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[python]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[lua]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+[zig]
+symbol = " "
+style = "bg:#fffd91 fg:#101116"
+format = '[ $symbol($version) ]($style)'
+
+# Docker & Conda - Purple background (#C792EA)
+[docker_context]
+symbol = " "
+style = "bg:#C792EA fg:#101116"
+format = '[ $symbol$context ]($style)'
+
+[conda]
+symbol = " "
+style = "bg:#C792EA fg:#101116"
+format = '[ $symbol$environment ]($style)'
+
+# Time - Cyan/Teal background (#00d4b1)
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:#00d4b1 fg:#101116"
+format = '[  $time ]($style)'
+
+# Prompt Character
+[character]
+success_symbol = "[❯](bold #00ff9c)"
+error_symbol = "[❯](bold #ff5680)"
+vimcmd_symbol = "[❮](bold #00d4b1)"
+
+# Additional modules with synthwave colors
+
+[cmd_duration]
+min_time = 500
+format = "[ $duration]($style) "
+style = "bold #fffd91"
+
+[battery]
+full_symbol = "󰁹 "
+charging_symbol = "󰂄 "
+discharging_symbol = "󰂃 "
+
+[[battery.display]]
+threshold = 20
+style = "bold #ff5680"
+
+[[battery.display]]
+threshold = 50
+style = "bold #fffd91"
+
+[[battery.display]]
+threshold = 100
+style = "bold #00d482"
+
+[memory_usage]
+disabled = false
+threshold = 75
+symbol = "󰍛 "
+style = "bold #ee6dff"
+format = "[$symbol$ram]($style) "
+
+[package]
+symbol = "󰏗 "
+style = "bold #00a2ff"
+format = "[$symbol$version]($style) "
+
+[aws]
+symbol = "󰸏 "
+style = "bold #fffd91"
+format = '[$symbol($profile )(\($region\) )]($style)'
+
+[kubernetes]
+symbol = "󱃾 "
+style = "bold #00a2ff"
+format = '[$symbol$context( \($namespace\))]($style) '
+disabled = false
+
+[terraform]
+symbol = "󱁢 "
+style = "bold #C792EA"
+format = '[$symbol$workspace]($style) '
+
+[nix_shell]
+symbol = " "
+style = "bold #00d4b1"
+format = '[$symbol$state( \($name\))]($style) '
+
+[shell]
+disabled = false
+bash_indicator = "󱆃"
+zsh_indicator = ""
+fish_indicator = "󰈺"
+powershell_indicator = "󰨊"
+style = "bold #00d4b1"
+
+[status]
+disabled = false
+symbol = "✘"
+style = "bold #ff5680"
+format = '[$symbol $status]($style) '
+
+[sudo]
+disabled = false
+symbol = "󰯄 "
+style = "bold #ff009d"
+format = '[$symbol]($style)'
+
+[hostname]
+ssh_only = true
+ssh_symbol = " "
+style = "bold #00ffd5"
+format = '[$ssh_symbol$hostname]($style) '
