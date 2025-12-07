@@ -180,6 +180,7 @@ Configurations I plan to add:
 - **cursor-agent** - AI code editor
 - **google-cli** - Google Cloud CLI
 - **pipx** - Install and run Python applications in isolated environments
+- **mise** - Unified package manager for many languages
 - **tldr** - Simplified man pages
 - **navi** - Interactive cheatsheet tool
 - **zoxide** - Smarter cd command
