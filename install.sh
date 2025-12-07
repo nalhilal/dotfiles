@@ -29,7 +29,7 @@ fi
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Available packages
-AVAILABLE_PACKAGES=("git" "lazygit" "nvim" "starship" "tmux" "wezterm" "zsh")
+AVAILABLE_PACKAGES=("git" "lazygit" "nvim" "starship" "tmux" "wezterm" "zoxide" "zsh")
 
 # Functions
 print_header() {
@@ -145,6 +145,10 @@ is_already_stowed() {
     local os=$(detect_os)
 
     case "$package" in
+        git)
+            target_dir="$HOME/.config/git"
+            source_dir="$DOTFILES_DIR/git/.config/git"
+            ;;
         nvim)
             target_dir="$HOME/.config/nvim"
             source_dir="$DOTFILES_DIR/nvim/.config/nvim"
@@ -170,6 +174,10 @@ is_already_stowed() {
         wezterm)
             target_dir="$HOME/.config/wezterm"
             source_dir="$DOTFILES_DIR/wezterm/.config/wezterm"
+            ;;
+        zoxide)
+            target_dir="$HOME/.config/zoxide"
+            source_dir="$DOTFILES_DIR/zoxide/.config/zoxide"
             ;;
         zsh)
             target_dir="$HOME/.config/zsh"
@@ -208,6 +216,25 @@ backup_existing() {
     local os=$(detect_os)
 
     case "$package" in
+        git)
+            if [ -e "$HOME/.config/git" ] && [ ! -L "$HOME/.config/git" ]; then
+                mkdir -p "$backup_dir" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                # Backup but preserve config.local if it exists
+                if [ -f "$HOME/.config/git/config.local" ]; then
+                    cp "$HOME/.config/git/config.local" "$backup_dir/config.local.keep" || {
+                        print_warning "Failed to preserve config.local"
+                    }
+                fi
+                mv "$HOME/.config/git" "$backup_dir/" || {
+                    print_error "Failed to backup git config"
+                    return 1
+                }
+                print_warning "Backed up existing git config to: $backup_dir"
+            fi
+            ;;
         nvim)
             if [ -e "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
                 mkdir -p "$backup_dir" || {
@@ -288,6 +315,19 @@ backup_existing() {
                 print_warning "Backed up existing wezterm config to: $backup_dir"
             fi
             ;;
+        zoxide)
+            if [ -e "$HOME/.config/zoxide" ] && [ ! -L "$HOME/.config/zoxide" ]; then
+                mkdir -p "$backup_dir" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                mv "$HOME/.config/zoxide" "$backup_dir/" || {
+                    print_error "Failed to backup zoxide config"
+                    return 1
+                }
+                print_warning "Backed up existing zoxide config to: $backup_dir"
+            fi
+            ;;
         zsh)
             if [ -e "$HOME/.config/zsh" ] && [ ! -L "$HOME/.config/zsh" ]; then
                 mkdir -p "$backup_dir" || {
@@ -343,6 +383,9 @@ install_package() {
 
         # Special handling for specific packages
         case "$package" in
+            git)
+                setup_git
+                ;;
             tmux)
                 setup_tmux
                 ;;
@@ -354,6 +397,9 @@ install_package() {
                 ;;
             starship)
                 setup_starship
+                ;;
+            zoxide)
+                setup_zoxide
                 ;;
         esac
         return 0
@@ -517,6 +563,39 @@ EOF
     return 0
 }
 
+setup_git() {
+    print_info "Setting up git configuration..."
+
+    # Create config.local if it doesn't exist
+    if [ ! -f "$HOME/.config/git/config.local" ]; then
+        cat > "$HOME/.config/git/config.local" << 'EOF' || {
+# Machine-specific Git Configuration
+# This file is NOT version controlled
+# Add your machine-specific configurations here
+#
+# Example:
+# [user]
+# 	name = Your Name
+# 	email = your.email@example.com
+#
+# [credential]
+# 	helper = osxkeychain  # macOS
+#	helper = store        # Linux
+EOF
+            print_error "Failed to create ~/.config/git/config.local"
+            return 1
+        }
+        print_success "Created ~/.config/git/config.local"
+        print_info "Edit ${CYAN}~/.config/git/config.local${NC} to add your user name and email"
+    else
+        print_info "config.local already exists, preserving..."
+    fi
+
+    print_success "Git setup complete!"
+    print_info "Set your user name and email in ${CYAN}~/.config/git/config.local${NC}"
+    return 0
+}
+
 setup_starship() {
     print_info "Setting up Starship prompt..."
 
@@ -631,6 +710,102 @@ add_starship_to_shell() {
     echo "$init_line" >> "$rc_file"
 
     print_success "Added starship initialization to $rc_file"
+    return 0
+}
+
+setup_zoxide() {
+    print_info "Setting up zoxide..."
+
+    # Check if zoxide binary is installed
+    if ! check_binary_installed "zoxide"; then
+        print_warning "Zoxide binary is not installed"
+        echo ""
+        read -rp "$(echo -e "${BLUE}Would you like to install zoxide now?${NC} [Y/n]: ")" install_confirm
+
+        if [ "$install_confirm" != "n" ] && [ "$install_confirm" != "N" ]; then
+            if ! install_binary "zoxide"; then
+                print_error "Zoxide installation failed"
+                print_info "You can install it manually later with: ${CYAN}$(get_install_command zoxide)${NC}"
+                return 1
+            fi
+        else
+            print_info "Skipping zoxide binary installation"
+            print_info "Install it later with: ${CYAN}$(get_install_command zoxide)${NC}"
+            return 1
+        fi
+    else
+        print_success "Zoxide binary is already installed"
+    fi
+
+    echo ""
+
+    # Detect current shell
+    local current_shell
+    current_shell="$(basename "$SHELL")"
+    print_info "Detected shell: ${CYAN}$current_shell${NC}"
+
+    # Add zoxide initialization to shell rc file(s)
+    add_zoxide_to_shell "$current_shell"
+
+    print_success "Zoxide setup complete!"
+    print_info "Reload your shell to use zoxide: ${CYAN}exec $current_shell${NC}"
+    print_info "Use ${CYAN}z <directory>${NC} to jump to frequently used directories"
+    return 0
+}
+
+add_zoxide_to_shell() {
+    local shell=$1
+    local rc_file=""
+    local init_line=""
+
+    case "$shell" in
+        bash)
+            rc_file="$HOME/.bashrc"
+            init_line='eval "$(zoxide init bash)"'
+            ;;
+        zsh)
+            # If using ZDOTDIR, add to the config zsh directory
+            if [ -n "$ZDOTDIR" ] && [ -d "$ZDOTDIR" ]; then
+                rc_file="$ZDOTDIR/.zshrc"
+            elif [ -f "$HOME/.config/zsh/.zshrc" ]; then
+                rc_file="$HOME/.config/zsh/.zshrc"
+            else
+                rc_file="$HOME/.zshrc"
+            fi
+            init_line='eval "$(zoxide init zsh)"'
+            ;;
+        fish)
+            rc_file="$HOME/.config/fish/config.fish"
+            init_line='zoxide init fish | source'
+            ;;
+        *)
+            print_warning "Unknown shell: $shell"
+            print_info "Add this to your shell RC file manually:"
+            echo -e "  ${CYAN}eval \"\$(zoxide init $shell)\"${NC}"
+            return 1
+            ;;
+    esac
+
+    # Check if rc file exists
+    if [ ! -f "$rc_file" ]; then
+        print_warning "Shell RC file not found: $rc_file"
+        print_info "Creating it now..."
+        mkdir -p "$(dirname "$rc_file")"
+        touch "$rc_file"
+    fi
+
+    # Check if zoxide is already initialized
+    if grep -q "zoxide init" "$rc_file" 2>/dev/null; then
+        print_info "Zoxide already initialized in $rc_file"
+        return 0
+    fi
+
+    # Add zoxide initialization
+    echo "" >> "$rc_file"
+    echo "# Initialize zoxide (smarter cd)" >> "$rc_file"
+    echo "$init_line" >> "$rc_file"
+
+    print_success "Added zoxide initialization to $rc_file"
     return 0
 }
 

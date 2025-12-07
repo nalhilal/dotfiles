@@ -45,6 +45,7 @@ setup_test_env() {
     mkdir -p "$MOCK_DOTFILES/starship/.config"
     mkdir -p "$MOCK_DOTFILES/tmux/.config/tmux/plugins/tpm"
     mkdir -p "$MOCK_DOTFILES/wezterm/.config/wezterm"
+    mkdir -p "$MOCK_DOTFILES/zoxide/.config/zoxide"
     mkdir -p "$MOCK_DOTFILES/zsh/.config/zsh"
 
     echo "mock nvim config" > "$MOCK_DOTFILES/nvim/.config/nvim/init.lua"
@@ -54,6 +55,7 @@ setup_test_env() {
     echo "#!/usr/bin/env bash" > "$MOCK_DOTFILES/tmux/.config/tmux/plugins/tpm/tpm"
     chmod +x "$MOCK_DOTFILES/tmux/.config/tmux/plugins/tpm/tpm"
     echo "mock wezterm config" > "$MOCK_DOTFILES/wezterm/.config/wezterm/wezterm.lua"
+    echo "mock zoxide config" > "$MOCK_DOTFILES/zoxide/.config/zoxide/README.md"
     echo "mock zsh config" > "$MOCK_DOTFILES/zsh/.config/zsh/.zshrc"
     echo "mock zsh env" > "$MOCK_DOTFILES/zsh/.config/zsh/.zshenv"
     echo "*.local" > "$MOCK_DOTFILES/zsh/.config/zsh/.gitignore"
@@ -94,6 +96,10 @@ case "$package" in
     wezterm)
         mkdir -p "$HOME/.config/wezterm"
         ln -sf "$dotfiles_dir/wezterm/.config/wezterm/wezterm.lua" "$HOME/.config/wezterm/wezterm.lua"
+        ;;
+    zoxide)
+        mkdir -p "$HOME/.config/zoxide"
+        ln -sf "$dotfiles_dir/zoxide/.config/zoxide/README.md" "$HOME/.config/zoxide/README.md"
         ;;
     zsh)
         mkdir -p "$HOME/.config/zsh"
@@ -422,7 +428,7 @@ test_error_handling() {
 
     # Test with invalid package name
     local invalid_pkg="nonexistent"
-    local available_packages=("git" "lazygit" "nvim" "starship" "tmux" "wezterm" "zsh")
+    local available_packages=("git" "lazygit" "nvim" "starship" "tmux" "wezterm" "zoxide" "zsh")
 
     if [[ " ${available_packages[*]} " =~ " $invalid_pkg " ]]; then
         assert_true "false" "Should reject invalid package name"

@@ -1,0 +1,12 @@
+# Machine-specific Git Configuration
+# This file is NOT version controlled
+# Add your machine-specific configurations here
+#
+# Example:
+# [user]
+# 	name = Your Name
+# 	email = your.email@example.com
+#
+# [credential]
+# 	helper = osxkeychain  # macOS
+#	helper = store        # Linux
