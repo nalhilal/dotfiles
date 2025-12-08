@@ -3,18 +3,15 @@
 "$schema" = 'https://starship.rs/config-schema.json'
 
 format = """
-[](fg:void)\
+[](fg:synthwave_purple)\
 $os\
 $username\
-[](bg:synthwave_purple fg:void)\
-[](bg:void fg:synthwave_purple)\
+[](bg:electric_blue fg:synthwave_purple)\
 $directory\
-[](bg:electric_blue fg:void)\
-[](bg:void fg:electric_blue)\
+[](bg:hot_pink fg:electric_blue)\
 $git_branch\
 $git_status\
-[](bg:hot_pink fg:void)\
-[](bg:void fg:hot_pink)\
+[](bg:neon_green fg:hot_pink)\
 $c\
 $rust\
 $golang\
@@ -26,16 +23,13 @@ $haskell\
 $python\
 $lua\
 $zig\
-[](bg:neon_green fg:void)\
-[](bg:void fg:neon_green)\
+[](bg:laser_yellow fg:neon_green)\
 $docker_context\
 $conda\
-[](bg:laser_yellow fg:void)\
-[](bg:void fg:laser_yellow)\
+[](bg:electric_cyan fg:laser_yellow)\
 $time\
-[](bg:electric_cyan fg:void)\
-[](bg:void fg:electric_cyan)\
-$cmd_duration[](fg:void)\
+[](bg:neon_pink fg:electric_cyan)\
+$cmd_duration[](fg:neon_pink)\
 $line_break\
 $character"""
 
@@ -48,7 +42,7 @@ palette = 'synthwave_2077'
 
 [os]
 disabled = false
-style = "bg:void fg:synthwave_purple"
+style = "bg:synthwave_purple fg:void"
 
 [os.symbols]
 Windows = "󰍲"
@@ -76,17 +70,17 @@ NixOS = ""
 
 [username]
 show_always = true
-style_user = "bg:void fg:synthwave_purple"
-style_root = "bg:void fg:synthwave_purple"
-format = '[ $user ]($style)'
+style_user = "bg:synthwave_purple fg:void"
+style_root = "bg:synthwave_purple fg:void"
+format = '[ $user]($style)'
 
 # ═══════════════════════════════════════════════════════════════
 #                        DIRECTORY
 # ═══════════════════════════════════════════════════════════════
 
 [directory]
-style = "bg:void fg:electric_blue"
-format = "[[ 󰉋 $path ](bg:void fg:electric_blue)]($style)"
+style = "bg:electric_blue fg:void"
+format = "[[ 󰉋 $path ](bg:electric_blue fg:void)]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
@@ -96,12 +90,12 @@ truncation_symbol = "…/"
 
 [git_branch]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol$branch ](fg:hot_pink bg:void)]($style)'
+style = "bg:hot_pink"
+format = '[[ $symbol$branch ](fg:void bg:hot_pink)]($style)'
 
 [git_status]
-style = "bg:void"
-format = '[[($all_status$ahead_behind )](fg:hot_pink bg:void)]($style)'
+style = "bg:hot_pink"
+format = '[[($all_status$ahead_behind )](fg:void bg:hot_pink)]($style)'
 conflicted = "󰞇 "
 ahead = "⇡${count} "
 behind = "⇣${count} "
@@ -119,58 +113,58 @@ deleted = "󰍴 "
 
 [c]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [rust]
 symbol = "󱘗"
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [golang]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [nodejs]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [php]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [java]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [kotlin]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [haskell]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [python]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version)(\($virtualenv\)) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version)(\($virtualenv\)) ](fg:void bg:neon_green)]($style)'
 
 [lua]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 [zig]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
+style = "bg:neon_green"
+format = '[[ $symbol($version) ](fg:void bg:neon_green)]($style)'
 
 # ═══════════════════════════════════════════════════════════════
 #                    CONTAINERS & ENV
@@ -178,13 +172,13 @@ format = '[[ $symbol($version) ](fg:neon_green bg:void)]($style)'
 
 [docker_context]
 symbol = " "
-style = "bg:void"
-format = '[[ $symbol$context ](fg:laser_yellow bg:void)]($style)'
+style = "bg:laser_yellow"
+format = '[[ $symbol$context ](fg:void bg:laser_yellow)]($style)'
 
 [conda]
 symbol = "󱔎"
-style = "bg:void fg:laser_yellow"
-format = '[[ $symbol $environment ](fg:laser_yellow bg:void)]($style)'
+style = "bg:laser_yellow fg:void"
+format = '[[ $symbol $environment ](fg:void bg:laser_yellow)]($style)'
 ignore_base = false
 
 # ═══════════════════════════════════════════════════════════════
@@ -194,8 +188,8 @@ ignore_base = false
 [time]
 disabled = false
 time_format = "%R"
-style = "bg:void"
-format = '[[  $time ](fg:electric_cyan bg:void)]($style)'
+style = "bg:electric_cyan"
+format = '[[  $time ](fg:void bg:electric_cyan)]($style)'
 
 # ═══════════════════════════════════════════════════════════════
 #                      PROMPT CHARS
@@ -216,7 +210,7 @@ vimcmd_visual_symbol = '[❮](bold fg:laser_yellow)'
 [cmd_duration]
 show_milliseconds = false
 format = '[ $duration]($style)'
-style = "bold bg:void fg:neon_pink"
+style = "bold bg:neon_pink fg:text"
 disabled = false
 min_time = 2000
 
@@ -231,45 +225,45 @@ discharging_symbol = "󰂃 "
 
 [[battery.display]]
 threshold = 20
-style = "bold fg:neon_pink bg:void"
+style = "bold neon_pink"
 
 [[battery.display]]
 threshold = 50
-style = "bold fg:laser_yellow bg:void"
+style = "bold laser_yellow"
 
 [[battery.display]]
 threshold = 100
-style = "bold fg:neon_green bg:void"
+style = "bold neon_green"
 
 [memory_usage]
 disabled = true
 threshold = 75
 symbol = "󰍛 "
-style = "bold fg:hot_pink bg:void"
+style = "bold hot_pink"
 format = '[$symbol$ram]($style) '
 
 [package]
 symbol = "󰏗 "
-style = "bold fg:electric_blue"
+style = "bold electric_blue"
 format = '[$symbol$version]($style) '
 disabled = true
 
 [status]
 disabled = false
 symbol = "󰅗"
-style = "bold fg:neon_pink"
+style = "bold neon_pink"
 format = '[$symbol $status]($style) '
 
 [sudo]
 disabled = false
 symbol = "󰯄 "
-style = "bold fg:hot_pink"
+style = "bold hot_pink"
 format = '[$symbol]($style)'
 
 [hostname]
 ssh_only = true
 ssh_symbol = "󰢹 "
-style = "bold fg:electric_cyan"
+style = "bold electric_cyan"
 format = '[$ssh_symbol$hostname]($style) '
 
 # ═══════════════════════════════════════════════════════════════
