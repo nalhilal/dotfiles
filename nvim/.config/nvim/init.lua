@@ -51,6 +51,7 @@ local plugins = {
   --  require 'plugins.avante',
   --  require 'plugins.aerial',
   require 'plugins.vim-tmux-navigator',
+  require 'plugins.which-key',
 }
 
 if themes[env_var_nvim_theme] then

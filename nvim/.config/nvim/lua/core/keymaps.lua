@@ -30,8 +30,9 @@ vim.keymap.set('n', '<C-q>', '<cmd> q <CR>', opts)
 vim.keymap.set('n', 'x', '"_x', opts)
 
 -- Vertical scroll and center
-vim.keymap.set('n', '<C-d>', '<C-d>zz', opts)
-vim.keymap.set('n', '<C-u>', '<C-u>zz', opts)
+-- Disabled these. They were interfering with c-d and c-n in Which-key window
+-- vim.keymap.set('n', '<C-d>', '<C-d>zz', opts)
+-- vim.keymap.set('n', '<C-u>', '<C-u>zz', opts)
 
 -- Find and center
 vim.keymap.set('n', 'n', 'nzzzv')
