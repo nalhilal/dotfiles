@@ -34,10 +34,12 @@ When stowed from `~/.dotfiles`, files are symlinked to their target locations (e
    - Executes package-specific setup functions
 
 3. **Special Package Handlers**:
+   - **git**: Creates `config.local` for machine-specific user details if it doesn't exist
    - **tmux**: Initializes git submodules for plugins (TPM and plugins), verifies plugin directory structure (see Tmux Git Submodules below)
    - **lazygit**: On macOS, creates symlinks from `~/Library/Application Support/lazygit/` to `~/.config/lazygit/` (see Lazygit Cross-Platform Handling below)
    - **zsh**: Creates `~/.zshenv` with ZDOTDIR, placeholder `~/.zshrc`, and `.zshrc.local`
    - **starship**: Checks/installs binary, detects shell, offers zsh integration, adds init to RC files
+   - **zoxide**: Checks/installs binary, detects shell, adds init to RC files
 
 ### Key Design Patterns
 

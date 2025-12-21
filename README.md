@@ -44,14 +44,16 @@ You can also use [GNU Stow](https://www.gnu.org/software/stow/) directly:
 
 ```bash
 # Install all configs
-stow nvim lazygit starship tmux wezterm zsh
+stow git lazygit nvim starship tmux wezterm zoxide zsh
 
 # Or install individually
-stow nvim
+stow git
 stow lazygit
+stow nvim
 stow starship
 stow tmux
 stow wezterm
+stow zoxide
 stow zsh
 ```
 
@@ -61,6 +63,14 @@ echo 'export ZDOTDIR="$HOME/.config/zsh"' > ~/.zshenv
 ```
 
 ## What's Included
+
+### Git
+
+Git configuration with a machine-specific local config support:
+- Common aliases and settings
+- `config.local` for user-specific settings (name, email, credentials) which is not version controlled
+
+To install: `stow git`
 
 ### Neovim
 
@@ -142,6 +152,15 @@ Cross-platform terminal emulator configuration featuring:
 
 To install: `stow wezterm`
 
+### Zoxide
+
+A smarter cd command that remembers your most used directories:
+- Fast navigation to frequently used paths
+- Integration with your shell (zsh, bash, fish)
+- Interactive selection
+
+To install: `stow zoxide`
+
 ### Zsh
 
 Modular zsh configuration using ZDOTDIR for clean home directory:
@@ -174,7 +193,6 @@ Configurations I plan to add:
 - **fd** - Fast and user-friendly alternative to find
 - **ripgrep** - Fast search tool
 - **lazydocker** - Terminal UI for docker
-- **git** - Version control configuration
 - **yazi** - Terminal file manager
 - **claude-code** - AI-powered coding assistant
 - **cursor-agent** - AI code editor
@@ -183,7 +201,6 @@ Configurations I plan to add:
 - **mise** - Unified package manager for many languages
 - **tldr** - Simplified man pages
 - **navi** - Interactive cheatsheet tool
-- **zoxide** - Smarter cd command
 - **pass** - Password manager
 - **doppler** - Secrets management
 - **jq** - JSON processor
