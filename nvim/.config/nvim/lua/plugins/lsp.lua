@@ -124,6 +124,22 @@ return {
       end,
     })
 
+    vim.diagnostic.config {
+      virtual_text = true, -- this puts the error message right next to the code
+      underline = true, -- this puts a wavey line under the undefined symbol
+      signs = true, -- this puts an icon in the left margin (gutter)
+      update_in_insert = false, -- only updates when you leave insert mode (less distracting)
+    }
+    -- Jump to the next diagnostic
+    vim.keymap.set('n', ']d', function()
+      vim.diagnostic.jump { count = 1, float = true }
+    end, { desc = 'Go to next [D]iagnostic' })
+
+    -- Jump to the previous diagnostic
+    vim.keymap.set('n', '[d', function()
+      vim.diagnostic.jump { count = -1, float = true }
+    end, { desc = 'Go to previous [D]iagnostic' })
+
     -- LSP servers and clients are able to communicate to each other what features they support.
     -- By default, Neovim doesn't support everything that is in the LSP specification.
     -- When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
@@ -176,6 +192,7 @@ return {
           },
         },
       },
+      ts_ls = {},
       -- basedpyright = {
       --   -- Config options: https://github.com/DetachHead/basedpyright/blob/main/docs/settings.md
       --   settings = {
