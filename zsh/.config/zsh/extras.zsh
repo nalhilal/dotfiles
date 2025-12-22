@@ -14,6 +14,7 @@ if command -v eza &> /dev/null; then
 fi
 
 # ngrok
-  if command -v ngrok &>/dev/null; then
-    eval "$(ngrok completion)"
-  fi
+if command -v ngrok &>/dev/null; then
+  eval "$(ngrok completion)"
+fi
+

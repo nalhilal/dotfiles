@@ -79,3 +79,8 @@ source "$ZDOTDIR/git.zsh"
 if [[ -f "$ZDOTDIR/.zshrc.local" ]]; then
   source "$ZDOTDIR/.zshrc.local"
 fi
+
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+echo ">>> USER .zshrc LOADED <<<"
+
