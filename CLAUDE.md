@@ -279,13 +279,45 @@ git push
 - Respects each OS's default config location
 - Allows custom scripts (like `ai-commit.sh`) to work seamlessly
 
-### Zsh Special Handling
+### Shell Configuration: Dotfiles as Extension Pattern
 
-Zsh uses ZDOTDIR (`~/.config/zsh/`) to keep home directory clean:
-- `~/.zshenv` (created by installer) exports ZDOTDIR
-- `~/.zshrc` (placeholder) exists for installers that try to modify it
-- `~/.config/zsh/.zshrc` (stowed) is the actual config
-- `~/.config/zsh/.zshrc.local` (not tracked) for machine-specific settings
+**CRITICAL ARCHITECTURE**: This repository follows a "dotfiles as extension" pattern where shell RC files are minimally modified to source dotfiles configurations. The actual configurations live in `~/.config/bash/` and `~/.config/zsh/`.
+
+**Bash Setup:**
+1. **System Files** (minimally modified by `setup_bash()`):
+   - `~/.bashrc` - Sources `~/.config/bash/bashrc`
+   - `~/.bash_profile` - Sources `~/.config/bash/bash_profile`
+2. **Dotfiles Configs** (stowed to `~/.config/bash/`, contain all actual configuration):
+   - `bashrc` - Main entry point, sources modular configs and initializes tools (starship, zoxide, fzf)
+   - `bash_profile` - Sources `~/.bashrc` for login shells
+   - `settings.sh` - History, shell options, environment
+   - `aliases.sh` - All aliases (eza, git, nvim, etc.)
+3. **Local Overrides** (not tracked):
+   - `~/.bashrc.local` or `~/.config/bash/bashrc.local` - Machine-specific configuration
+
+**Zsh Setup:**
+1. **System Files** (created by `setup_zsh()`):
+   - `~/.zshenv` - Exports `ZDOTDIR="$HOME/.config/zsh"` to redirect zsh to dotfiles config
+   - `~/.zshrc` - Placeholder with warning (ignored due to ZDOTDIR)
+2. **Dotfiles Configs** (stowed to `~/.config/zsh/`, contain all actual configuration):
+   - `.zshrc` - Main config, sources modular files (starship.zsh, zoxide.zsh, fzf.zsh, etc.)
+   - `.zshenv` - Environment variables
+   - `starship.zsh`, `zoxide.zsh`, `fzf.zsh`, etc. - Tool-specific configurations
+3. **Local Overrides** (not tracked):
+   - `~/.config/zsh/.zshrc.local` - Machine-specific configuration
+
+**Tool Setup Functions** (starship, zoxide, eza, bat, fzf):
+- **DO NOT** directly modify shell RC files
+- **DO** check if bash/zsh dotfiles are installed (prerequisite check)
+- **DO** detect and offer to fix conflicts in system/local files
+- Tool initializations are already in the stowed configs, not dynamically added
+
+**Why This Pattern:**
+- System shell files remain clean and minimal
+- All configuration is version-controlled in dotfiles
+- Easy to understand what the dotfiles actually configure
+- No risk of installer functions accidentally breaking shell configs
+- Tool configs are declarative (in the stowed files) not imperative (added by scripts)
 
 ### WezTerm Cross-Platform Config
 

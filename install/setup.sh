@@ -267,95 +267,81 @@ setup_starship() {
     current_shell="$(basename "$SHELL")"
     print_info "Detected shell: ${CYAN}$current_shell${NC}"
 
-    # If current shell is zsh, offer to install zsh config
-    if [ "$current_shell" = "zsh" ]; then
-        echo ""
-        print_info "Detected zsh as your shell"
+    case "$current_shell" in
+        bash)
+            # Check if bash dotfiles are installed (prerequisite)
+            if [ ! -f "$HOME/.config/bash/bashrc" ]; then
+                print_warning "Bash dotfiles are not installed. Starship configuration relies on them."
+                print_info "Please install 'bash' package first to enable the dotfiles configuration."
+            else
+                print_success "Bash dotfiles detected"
+            fi
 
-        # Check if zsh config is already installed
-        if ! is_already_stowed "zsh"; then
-            read -rp "$(echo -e "${BLUE}Would you like to install the zsh configuration as well?${NC} [Y/n]: ")" zsh_confirm
-
-            if [ "$zsh_confirm" != "n" ] && [ "$zsh_confirm" != "N" ]; then
-                print_info "Installing zsh configuration..."
-                if install_package "zsh"; then
-                    print_success "Zsh configuration installed"
-                else
-                    print_warning "Zsh installation failed, continuing with starship setup"
+            # Check for local conflicts in ~/.bashrc
+            if [ -f "$HOME/.bashrc" ]; then
+                if grep -E "^[[:space:]]*eval.*starship init" "$HOME/.bashrc" > /dev/null; then
+                    print_warning "Detected manual Starship initialization in ~/.bashrc:"
+                    grep -E "^[[:space:]]*eval.*starship init" "$HOME/.bashrc" | head -n 1
+                    
+                    echo ""
+                    read -rp "$(echo -e "${BLUE}Would you like to comment out this local init to use the dotfiles version?${NC} [y/N]: ")" fix_bashrc
+                    if [ "$fix_bashrc" = "y" ] || [ "$fix_bashrc" = "Y" ]; then
+                        sed -i 's/^\([[:space:]]*eval.*starship init\)/# \1/' "$HOME/.bashrc"
+                        print_success "Commented out local Starship init in ~/.bashrc"
+                    else
+                        print_info "Kept local init."
+                    fi
                 fi
             fi
-        else
-            print_info "Zsh configuration already installed"
-        fi
-    fi
+            ;;
+        zsh)
+            # Check if zsh dotfiles are installed (prerequisite)
+            if [ ! -f "$HOME/.config/zsh/.zshrc" ] && [ ! -n "$ZDOTDIR" ]; then
+                print_warning "Zsh dotfiles are not installed. Starship configuration relies on them."
+                print_info "Please install 'zsh' package first to enable the dotfiles configuration."
+            else
+                print_success "Zsh dotfiles detected"
+            fi
 
-    # Add starship initialization to shell rc file
-    add_starship_to_shell "$current_shell"
+            # Check for local conflicts in ~/.config/zsh/.zshrc.local
+            local zsh_local="$HOME/.config/zsh/.zshrc.local"
+            if [ -f "$zsh_local" ]; then
+                if grep -E "^[[:space:]]*eval.*starship init" "$zsh_local" > /dev/null; then
+                    print_warning "Detected manual Starship initialization in $zsh_local:"
+                    grep -E "^[[:space:]]*eval.*starship init" "$zsh_local" | head -n 1
+                    
+                    echo ""
+                    read -rp "$(echo -e "${BLUE}Would you like to comment out this local init to use the dotfiles version?${NC} [y/N]: ")" fix_zshrc
+                    if [ "$fix_zshrc" = "y" ] || [ "$fix_zshrc" = "Y" ]; then
+                        sed -i 's/^\([[:space:]]*eval.*starship init\)/# \1/' "$zsh_local"
+                        print_success "Commented out local Starship init in $zsh_local"
+                    else
+                        print_info "Kept local init."
+                    fi
+                fi
+            fi
+            
+            # Also check ~/.zshrc if it exists and is NOT a symlink to dotfiles (standard user zshrc)
+            if [ -f "$HOME/.zshrc" ] && [ ! -L "$HOME/.zshrc" ]; then
+                 if grep -E "^[[:space:]]*eval.*starship init" "$HOME/.zshrc" > /dev/null; then
+                    print_warning "Detected manual Starship initialization in ~/.zshrc:"
+                    grep -E "^[[:space:]]*eval.*starship init" "$HOME/.zshrc" | head -n 1
+                    
+                    echo ""
+                    print_info "Since you are using dotfiles (ZDOTDIR), this file might be ignored or cause conflicts."
+                fi
+            fi
+            ;;
+        *)
+            print_warning "Unsupported shell for automatic setup: $current_shell"
+            ;;
+    esac
 
     print_success "Starship setup complete!"
     print_info "Reload your shell to see changes: ${CYAN}exec $current_shell${NC}"
     return 0
 }
 
-add_starship_to_shell() {
-    local shell=$1
-    local rc_file=""
-    local init_line=""
-
-    case "$shell" in
-        bash)
-            if [ -f "$HOME/.config/bash/bashrc" ]; then
-                rc_file="$HOME/.config/bash/bashrc"
-            else
-                rc_file="$HOME/.bashrc"
-            fi
-            init_line='eval "$(starship init bash)"'
-            ;;
-        zsh)
-            # If using ZDOTDIR, add to the config zsh directory
-            if [ -n "$ZDOTDIR" ] && [ -d "$ZDOTDIR" ]; then
-                rc_file="$ZDOTDIR/.zshrc"
-            elif [ -f "$HOME/.config/zsh/.zshrc" ]; then
-                rc_file="$HOME/.config/zsh/.zshrc"
-            else
-                rc_file="$HOME/.zshrc"
-            fi
-            init_line='eval "$(starship init zsh)"'
-            ;;
-        fish)
-            rc_file="$HOME/.config/fish/config.fish"
-            init_line='starship init fish | source'
-            ;;
-        *)
-            print_warning "Unknown shell: $shell"
-            print_info "Add this to your shell RC file manually:"
-            echo -e "  ${CYAN}eval \"\$(starship init $shell)\"${NC}"
-            return 1
-            ;;
-    esac
-
-    # Check if rc file exists
-    if [ ! -f "$rc_file" ]; then
-        print_warning "Shell RC file not found: $rc_file"
-        print_info "Creating it now..."
-        mkdir -p "$(dirname "$rc_file")"
-        touch "$rc_file"
-    fi
-
-    # Check if starship is already initialized
-    if grep -q "starship init" "$rc_file" 2>/dev/null; then
-        print_info "Starship already initialized in $rc_file"
-        return 0
-    fi
-
-    # Add starship initialization
-    echo "" >> "$rc_file"
-    echo "# Initialize Starship prompt" >> "$rc_file"
-    echo "$init_line" >> "$rc_file"
-
-    print_success "Added starship initialization to $rc_file"
-    return 0
-}
 
 setup_zoxide() {
     print_info "Setting up zoxide..."
@@ -388,8 +374,64 @@ setup_zoxide() {
     current_shell="$(basename "$SHELL")"
     print_info "Detected shell: ${CYAN}$current_shell${NC}"
 
-    # Add zoxide initialization to shell rc file(s)
-    add_zoxide_to_shell "$current_shell"
+    case "$current_shell" in
+        bash)
+             # Check if bash dotfiles are installed (prerequisite)
+            if [ ! -f "$HOME/.config/bash/bashrc" ]; then
+                print_warning "Bash dotfiles are not installed. Zoxide configuration relies on them."
+                print_info "Please install 'bash' package first to enable the dotfiles configuration."
+            else
+                print_success "Bash dotfiles detected"
+            fi
+
+            # Check for local conflicts in ~/.bashrc
+            if [ -f "$HOME/.bashrc" ]; then
+                if grep -E "^[[:space:]]*eval.*zoxide init" "$HOME/.bashrc" > /dev/null; then
+                    print_warning "Detected manual zoxide initialization in ~/.bashrc:"
+                    grep -E "^[[:space:]]*eval.*zoxide init" "$HOME/.bashrc" | head -n 1
+                    
+                    echo ""
+                    read -rp "$(echo -e "${BLUE}Would you like to comment out this local init to use the dotfiles version?${NC} [y/N]: ")" fix_bashrc
+                    if [ "$fix_bashrc" = "y" ] || [ "$fix_bashrc" = "Y" ]; then
+                        sed -i 's/^\([[:space:]]*eval.*zoxide init\)/# \1/' "$HOME/.bashrc"
+                        print_success "Commented out local zoxide init in ~/.bashrc"
+                    else
+                        print_info "Kept local init."
+                    fi
+                fi
+            fi
+            ;;
+        zsh)
+             # Check if zsh dotfiles are installed (prerequisite)
+            if [ ! -f "$HOME/.config/zsh/.zshrc" ] && [ ! -n "$ZDOTDIR" ]; then
+                print_warning "Zsh dotfiles are not installed. Zoxide configuration relies on them."
+                print_info "Please install 'zsh' package first to enable the dotfiles configuration."
+            else
+                print_success "Zsh dotfiles detected"
+            fi
+
+            # Check for local conflicts in ~/.config/zsh/.zshrc.local
+            local zsh_local="$HOME/.config/zsh/.zshrc.local"
+            if [ -f "$zsh_local" ]; then
+                if grep -E "^[[:space:]]*eval.*zoxide init" "$zsh_local" > /dev/null; then
+                    print_warning "Detected manual zoxide initialization in $zsh_local:"
+                    grep -E "^[[:space:]]*eval.*zoxide init" "$zsh_local" | head -n 1
+                    
+                    echo ""
+                    read -rp "$(echo -e "${BLUE}Would you like to comment out this local init to use the dotfiles version?${NC} [y/N]: ")" fix_zshrc
+                    if [ "$fix_zshrc" = "y" ] || [ "$fix_zshrc" = "Y" ]; then
+                        sed -i 's/^\([[:space:]]*eval.*zoxide init\)/# \1/' "$zsh_local"
+                        print_success "Commented out local zoxide init in $zsh_local"
+                    else
+                        print_info "Kept local init."
+                    fi
+                fi
+            fi
+            ;;
+        *)
+            print_warning "Unsupported shell for automatic setup: $current_shell"
+            ;;
+    esac
 
     print_success "Zoxide setup complete!"
     print_info "Reload your shell to use zoxide: ${CYAN}exec $current_shell${NC}"
@@ -397,65 +439,6 @@ setup_zoxide() {
     return 0
 }
 
-add_zoxide_to_shell() {
-    local shell=$1
-    local rc_file=""
-    local init_line=""
-
-    case "$shell" in
-        bash)
-            if [ -f "$HOME/.config/bash/bashrc" ]; then
-                rc_file="$HOME/.config/bash/bashrc"
-            else
-                rc_file="$HOME/.bashrc"
-            fi
-            init_line='eval "$(zoxide init bash)"'
-            ;;
-        zsh)
-            # If using ZDOTDIR, add to the config zsh directory
-            if [ -n "$ZDOTDIR" ] && [ -d "$ZDOTDIR" ]; then
-                rc_file="$ZDOTDIR/.zshrc"
-            elif [ -f "$HOME/.config/zsh/.zshrc" ]; then
-                rc_file="$HOME/.config/zsh/.zshrc"
-            else
-                rc_file="$HOME/.zshrc"
-            fi
-            init_line='eval "$(zoxide init zsh)"'
-            ;;
-        fish)
-            rc_file="$HOME/.config/fish/config.fish"
-            init_line='zoxide init fish | source'
-            ;;
-        *)
-            print_warning "Unknown shell: $shell"
-            print_info "Add this to your shell RC file manually:"
-            echo -e "  ${CYAN}eval \"\$(zoxide init $shell)\"${NC}"
-            return 1
-            ;;
-    esac
-
-    # Check if rc file exists
-    if [ ! -f "$rc_file" ]; then
-        print_warning "Shell RC file not found: $rc_file"
-        print_info "Creating it now..."
-        mkdir -p "$(dirname "$rc_file")"
-        touch "$rc_file"
-    fi
-
-    # Check if zoxide is already initialized
-    if grep -q "zoxide init" "$rc_file" 2>/dev/null; then
-        print_info "Zoxide already initialized in $rc_file"
-        return 0
-    fi
-
-    # Add zoxide initialization
-    echo "" >> "$rc_file"
-    echo "# Initialize zoxide (smarter cd)" >> "$rc_file"
-    echo "$init_line" >> "$rc_file"
-
-    print_success "Added zoxide initialization to $rc_file"
-    return 0
-}
 
 setup_eza() {
     print_info "Setting up eza (modern ls replacement)..."
@@ -490,17 +473,56 @@ setup_eza() {
 
     case "$current_shell" in
         bash)
+            # Check for dotfiles configuration
             if [ -f "$HOME/.config/bash/aliases.sh" ]; then
                 print_success "Bash aliases for eza are configured in ~/.config/bash/aliases.sh"
             else
                 print_warning "Bash aliases file not found. Ensure you have installed the bash dotfiles."
             fi
+
+            # Check for local conflicts in ~/.bashrc
+            if [ -f "$HOME/.bashrc" ]; then
+                # Look for aliases to ls that are NOT commented out
+                if grep -E "^[[:space:]]*alias ls=" "$HOME/.bashrc" > /dev/null; then
+                    print_warning "Detected local 'ls' alias in ~/.bashrc that might override eza:"
+                    grep -E "^[[:space:]]*alias ls=" "$HOME/.bashrc" | head -n 1
+                    
+                    echo ""
+                    read -rp "$(echo -e "${BLUE}Would you like to comment out this local alias to use eza?${NC} [y/N]: ")" fix_bashrc
+                    if [ "$fix_bashrc" = "y" ] || [ "$fix_bashrc" = "Y" ]; then
+                        sed -i 's/^\([[:space:]]*alias ls=\)/# \1/' "$HOME/.bashrc"
+                        print_success "Commented out local 'ls' alias in ~/.bashrc"
+                    else
+                        print_info "Kept local alias. eza might not be the default 'ls'."
+                    fi
+                fi
+            fi
             ;;
         zsh)
+            # Check for dotfiles configuration
             if [ -f "$HOME/.config/zsh/extras.zsh" ]; then
                 print_success "Zsh aliases for eza are configured in ~/.config/zsh/extras.zsh"
             else
                 print_warning "Zsh extras file not found. Ensure you have installed the zsh dotfiles."
+            fi
+
+            # Check for local conflicts in ~/.config/zsh/.zshrc.local
+            local zsh_local="$HOME/.config/zsh/.zshrc.local"
+            if [ -f "$zsh_local" ]; then
+                 # Look for aliases to ls that are NOT commented out
+                if grep -E "^[[:space:]]*alias ls=" "$zsh_local" > /dev/null; then
+                    print_warning "Detected local 'ls' alias in $zsh_local that might override eza:"
+                    grep -E "^[[:space:]]*alias ls=" "$zsh_local" | head -n 1
+                    
+                    echo ""
+                    read -rp "$(echo -e "${BLUE}Would you like to comment out this local alias to use eza?${NC} [y/N]: ")" fix_zshrc
+                    if [ "$fix_zshrc" = "y" ] || [ "$fix_zshrc" = "Y" ]; then
+                        sed -i 's/^\([[:space:]]*alias ls=\)/# \1/' "$zsh_local"
+                        print_success "Commented out local 'ls' alias in $zsh_local"
+                    else
+                        print_info "Kept local alias. eza might not be the default 'ls'."
+                    fi
+                fi
             fi
             ;;
         *)
@@ -509,5 +531,101 @@ setup_eza() {
     esac
 
     print_success "eza setup complete!"
+    return 0
+}
+
+setup_bat() {
+    print_info "Setting up bat (better cat)..."
+
+    # Check if bat binary is installed
+    if ! check_binary_installed "bat"; then
+        print_warning "bat binary is not installed"
+        echo ""
+        read -rp "$(echo -e "${BLUE}Would you like to install bat now?${NC} [Y/n]: ")" install_confirm
+
+        if [ "$install_confirm" != "n" ] && [ "$install_confirm" != "N" ]; then
+            if ! install_binary "bat"; then
+                print_error "bat installation failed"
+                print_info "You can install it manually later with: ${CYAN}$(get_install_command bat)${NC}"
+                return 1
+            fi
+        else
+            print_info "Skipping bat binary installation"
+            print_info "Install it later with: ${CYAN}$(get_install_command bat)${NC}"
+            return 1
+        fi
+    else
+        print_success "bat binary is already installed"
+    fi
+
+    # Bat doesn't require strict shell configuration in this dotfiles setup
+    # (it is used via MANPAGER in zshrc, but no explicit aliases are enforced yet)
+    # So we just ensure it is installed.
+
+    print_success "bat setup complete!"
+    return 0
+}
+
+setup_fzf() {
+    print_info "Setting up fzf (fuzzy finder)..."
+
+    # Check if fzf binary is installed
+    if ! check_binary_installed "fzf"; then
+        print_warning "fzf binary is not installed"
+        echo ""
+        read -rp "$(echo -e "${BLUE}Would you like to install fzf now?${NC} [Y/n]: ")" install_confirm
+
+        if [ "$install_confirm" != "n" ] && [ "$install_confirm" != "N" ]; then
+            if ! install_binary "fzf"; then
+                print_error "fzf installation failed"
+                print_info "You can install it manually later with: ${CYAN}$(get_install_command fzf)${NC}"
+                return 1
+            fi
+        else
+            print_info "Skipping fzf binary installation"
+            print_info "Install it later with: ${CYAN}$(get_install_command fzf)${NC}"
+            return 1
+        fi
+    else
+        print_success "fzf binary is already installed"
+    fi
+
+    echo ""
+
+    # Detect current shell
+    local current_shell
+    current_shell="$(basename "$SHELL")"
+    print_info "Detected shell: ${CYAN}$current_shell${NC}"
+
+    case "$current_shell" in
+        bash)
+             # Check if bash dotfiles are installed (prerequisite)
+            if [ ! -f "$HOME/.config/bash/bashrc" ]; then
+                print_warning "Bash dotfiles are not installed. fzf configuration relies on them."
+                print_info "Please install 'bash' package first to enable the dotfiles configuration."
+            else
+                print_success "Bash dotfiles detected"
+            fi
+            
+            # Check for local conflicts/manual sourcing in ~/.bashrc
+            if [ -f "$HOME/.bashrc" ]; then
+                # Look for source ~/.fzf.bash which is standard
+                if grep -E "^[[:space:]]*[.]?source.*/.fzf.bash" "$HOME/.bashrc" > /dev/null; then
+                    print_info "Note: ~/.bashrc sources ~/.fzf.bash manually."
+                fi
+            fi
+            ;;
+        zsh)
+             # Check if zsh dotfiles are installed (prerequisite)
+            if [ ! -f "$HOME/.config/zsh/.zshrc" ] && [ ! -n "$ZDOTDIR" ]; then
+                print_warning "Zsh dotfiles are not installed. fzf configuration relies on them."
+                print_info "Please install 'zsh' package first to enable the dotfiles configuration."
+            else
+                print_success "Zsh dotfiles detected"
+            fi
+            ;;
+    esac
+
+    print_success "fzf setup complete!"
     return 0
 }

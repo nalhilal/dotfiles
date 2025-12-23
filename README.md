@@ -45,10 +45,11 @@ It will:
 You can also use [GNU Stow](https://www.gnu.org/software/stow/) directly:
 
 ```bash
-# Install all configs
+# Install all configs (note: bash, bat, eza, fzf have special setup, use ./install.sh for those)
 stow git lazygit nvim starship tmux wezterm zoxide zsh
 
 # Or install individually
+stow bash    # Then run ./install.sh bash to set up RC file sourcing
 stow git
 stow lazygit
 stow nvim
@@ -57,6 +58,15 @@ stow tmux
 stow wezterm
 stow zoxide
 stow zsh
+```
+
+**Note for bash**: If installing manually with stow, you need to set up RC file sourcing:
+```bash
+# Add to ~/.bashrc
+echo 'if [ -f "$HOME/.config/bash/bashrc" ]; then source "$HOME/.config/bash/bashrc"; fi' >> ~/.bashrc
+
+# Add to ~/.bash_profile
+echo 'if [ -f "$HOME/.config/bash/bash_profile" ]; then source "$HOME/.config/bash/bash_profile"; fi' >> ~/.bash_profile
 ```
 
 **Note for zsh**: If installing manually, you need to create `~/.zshenv`:
@@ -68,12 +78,61 @@ echo 'export ZDOTDIR="$HOME/.config/zsh"' > ~/.zshenv
 
 ### Bash
 
-Modular Bash configuration located in `~/.config/bash/`:
-- **Structure**: Separates aliases, settings, and profile configuration
-- **Integration**: Sources `~/.config/bash/bashrc` from your main `~/.bashrc`
-- **Login Shell**: Sources `~/.config/bash/bash_profile` from `~/.bash_profile`
+Modular Bash configuration using the **dotfiles as extension pattern**:
 
-To install: `stow bash`. The install script will automatically update your `~/.bashrc` and `~/.bash_profile` to source these files.
+**System Files** (automatically configured by installer):
+- `~/.bashrc` - Minimally modified to source `~/.config/bash/bashrc`
+- `~/.bash_profile` - Minimally modified to source `~/.config/bash/bash_profile`
+
+**Dotfiles Configuration** (located in `~/.config/bash/`):
+- `bashrc` - Main configuration, sources modular files and initializes tools
+- `bash_profile` - Login shell configuration
+- `settings.sh` - History settings, shell options, environment variables
+- `aliases.sh` - All aliases (eza, git, nvim, navigation shortcuts)
+
+**Local Overrides**:
+- `~/.bashrc.local` - Machine-specific configuration (not version controlled)
+
+To install: `./install.sh bash`. The installer will automatically set up your system `.bashrc` and `.bash_profile` to source the dotfiles configurations.
+
+### Bat
+
+A modern replacement for `cat` with syntax highlighting and Git integration:
+- Syntax highlighting for many programming languages
+- Git integration shows file modifications
+- Line numbers and paging support
+- Used as the MANPAGER in zsh configuration
+
+The installer will offer to install the `bat` binary if not already present. Configuration is handled automatically through shell dotfiles (used for MANPAGER in zsh).
+
+To install: `./install.sh bat`
+
+### Eza
+
+A modern replacement for `ls` with icons, colors, and Git awareness:
+- File type icons and color-coded output
+- Git status integration in file listings
+- Tree view support with `lt` alias
+- Configurable through `aliases.sh` in shell dotfiles
+
+The installer checks for the `eza` binary and shell dotfiles (bash or zsh). Aliases are automatically configured in `~/.config/bash/aliases.sh` or `~/.config/zsh/extras.zsh`.
+
+To install: `./install.sh eza`
+
+**Note**: Install the `bash` or `zsh` package first for proper alias configuration.
+
+### FZF
+
+Fuzzy finder for command-line with shell integration:
+- Fuzzy search for files, command history, and processes
+- Keyboard-driven interface
+- Integration with shell reverse search (Ctrl+R)
+
+The installer will offer to install the `fzf` binary if not present. Configuration is handled through shell dotfiles (sourced in bash/zsh configs).
+
+To install: `./install.sh fzf`
+
+**Note**: Install the `bash` or `zsh` package first for proper integration.
 
 ### Git
 
@@ -174,33 +233,37 @@ To install: `stow zoxide`
 
 ### Zsh
 
-Modular zsh configuration using ZDOTDIR for clean home directory:
-- Portable configuration separated from machine-specific settings
-- History management with extensive options
-- Integration with zsh-autosuggestions and zsh-syntax-highlighting
-- Modular files for different tools (fzf, git, nvim, zoxide)
-- Machine-specific config in `.zshrc.local` (not version controlled)
+Modular Zsh configuration using the **dotfiles as extension pattern** with ZDOTDIR:
 
-**Files**:
-- `.zshrc` - Main configuration (portable)
-- `.zshenv` - Environment variables (portable)
-- `.zshrc.local` - Machine-specific config (auto-generated, not tracked)
+**System Files** (automatically created by installer):
+- `~/.zshenv` - Sets `ZDOTDIR="$HOME/.config/zsh"` to redirect zsh to dotfiles
+- `~/.zshrc` - Placeholder file with warnings (ignored when ZDOTDIR is set)
+
+**Dotfiles Configuration** (located in `~/.config/zsh/`):
+- `.zshrc` - Main configuration, sources all modular files
+- `.zshenv` - Environment variables
 - `starship.zsh` - Starship prompt initialization
-- `fzf.zsh` - FZF configuration
-- `git.zsh` - Git aliases
+- `zoxide.zsh` - Zoxide (smart cd) setup
+- `fzf.zsh` - Fuzzy finder configuration
+- `git.zsh` - Git aliases and functions
 - `nvim.zsh` - Neovim integration
-- `zoxide.zsh` - Zoxide setup
-- `extras.zsh` - Additional configurations
+- `extras.zsh` - Additional configurations (eza aliases, bat manpager)
 
-To install: `stow zsh`, then create `~/.zshenv` as shown in the installation section.
+**Local Overrides**:
+- `~/.config/zsh/.zshrc.local` - Machine-specific config (auto-generated, not tracked)
+
+**Features**:
+- Extensive history management with deduplication
+- Synthwave 2077 syntax highlighting colors
+- Integration with zsh-autosuggestions and zsh-syntax-highlighting
+- Portable configuration separated from machine-specific settings
+
+To install: `./install.sh zsh`. The installer will automatically create `~/.zshenv` and set up the ZDOTDIR structure.
 
 ## Planned Additions
 
 Configurations I plan to add:
 
-- **fzf** - Command-line fuzzy finder
-- **bat** - Cat clone with syntax highlighting
-- **eza** - Modern replacement for ls with icons and colors
 - **fd** - Fast and user-friendly alternative to find
 - **ripgrep** - Fast search tool
 - **lazydocker** - Terminal UI for docker
