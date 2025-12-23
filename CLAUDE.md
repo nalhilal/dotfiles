@@ -85,6 +85,7 @@ See individual tool READMEs for configuration details:
 - [bash/](bash/README.md), [zsh/](zsh/README.md), [git/](git/README.md)
 - [nvim/](nvim/README.md), [tmux/](tmux/README.md), [lazygit/](lazygit/README.md)
 - [starship/](starship/README.md), [zoxide/](zoxide/README.md), [wezterm/](wezterm/README.md)
+- [bat/](bat/README.md)
 
 **Steps:**
 1. Create package directory following stow convention
@@ -112,9 +113,17 @@ Plugins are git submodules in `tmux/.config/tmux/plugins/` (XDG location).
 
 Config uses Lua runtime detection for fonts, cursor, padding. No install script handling needed.
 
+### Bat: Shell-Specific Aliases
+
+- Stows individual alias files, not directories
+- **Bash**: `bat/.config/bash/bat.sh` → sourced conditionally by `bashrc`
+- **Zsh**: `bat/.config/zsh/bat.zsh` → sourced conditionally by `.zshrc`
+- `setup_bat()` checks for conflicting `cat` aliases and offers to comment them out
+- Follows shell extension philosophy: aliases loaded via sourcing, not dynamic modification
+
 ## Common Gotchas
 
-1. **Symlink Detection**: Use `readlink -f` (not `readlink`) - stow creates relative symlinks
+1. **Symlink Detection**: Use `get_absolute_path()` helper (not raw `readlink -f`) - handles both Linux and macOS, resolves `/var` vs `/private/var`
 2. **Error Messages**: Provide actionable suggestions
 3. **RC File Modification**: Only in `setup_bash()` and `setup_zsh()` - check if already exists before appending
 4. **Package Managers**: Handle systems without standard package managers

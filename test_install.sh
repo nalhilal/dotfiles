@@ -53,6 +53,8 @@ setup_test_env() {
     mkdir -p "$MOCK_DOTFILES/zoxide/.config/zoxide"
     mkdir -p "$MOCK_DOTFILES/zsh/.config/zsh"
     mkdir -p "$MOCK_DOTFILES/bash/.config/bash"
+    mkdir -p "$MOCK_DOTFILES/bat/.config/bash"
+    mkdir -p "$MOCK_DOTFILES/bat/.config/zsh"
     mkdir -p "$MOCK_DOTFILES/git/.config/git"
 
     echo "mock nvim config" > "$MOCK_DOTFILES/nvim/.config/nvim/init.lua"
@@ -68,6 +70,8 @@ setup_test_env() {
     echo "*.local" > "$MOCK_DOTFILES/zsh/.config/zsh/.gitignore"
     echo "mock bashrc" > "$MOCK_DOTFILES/bash/.config/bash/bashrc"
     echo "mock bash_profile" > "$MOCK_DOTFILES/bash/.config/bash/bash_profile"
+    echo "mock bat bash aliases" > "$MOCK_DOTFILES/bat/.config/bash/bat.sh"
+    echo "mock bat zsh aliases" > "$MOCK_DOTFILES/bat/.config/zsh/bat.zsh"
 
     # Create mock stow command
     cat > "$TEST_DIR/stow" << 'EOF'
@@ -137,6 +141,12 @@ case "$package" in
     git)
         mkdir -p "$target_dir/.config"
         ln -sf "$dotfiles_dir/git/.config/git" "$target_dir/.config/git"
+        ;;
+    bat)
+        mkdir -p "$target_dir/.config/bash"
+        mkdir -p "$target_dir/.config/zsh"
+        ln -sf "$dotfiles_dir/bat/.config/bash/bat.sh" "$target_dir/.config/bash/bat.sh"
+        ln -sf "$dotfiles_dir/bat/.config/zsh/bat.zsh" "$target_dir/.config/zsh/bat.zsh"
         ;;
 esac
 echo "stow: simulating stow $package"

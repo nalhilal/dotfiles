@@ -14,7 +14,20 @@ is_already_stowed() {
             target_dir="$HOME/.config/bash"
             source_dir="$DOTFILES_DIR/bash/.config/bash"
             ;;
-        bat|eza|fzf)
+        bat)
+            # Bat stows individual files, not directories
+            # Check if at least one of the alias files is stowed
+            if [ -L "$HOME/.config/bash/bat.sh" ]; then
+                local link_target resolved_source
+                link_target=$(get_absolute_path "$HOME/.config/bash/bat.sh")
+                resolved_source=$(get_absolute_path "$DOTFILES_DIR/bat/.config/bash/bat.sh")
+                if [[ "$link_target" == "$resolved_source" ]]; then
+                    return 0
+                fi
+            fi
+            return 1
+            ;;
+        eza|fzf)
             if check_binary_installed "$package"; then
                 return 0
             fi
@@ -62,11 +75,13 @@ is_already_stowed() {
 
     # Check if it's a symlink pointing to our dotfiles
     if [ -L "$target_dir" ]; then
-        local link_target
+        local link_target resolved_source
         # Get absolute path of symlink target
-        link_target=$(readlink -f "$target_dir" 2>/dev/null)
+        link_target=$(get_absolute_path "$target_dir")
+        # Also resolve source_dir to handle /var vs /private/var on macOS
+        resolved_source=$(get_absolute_path "$source_dir")
         # Check if it points to our dotfiles directory
-        if [[ "$link_target" == "$source_dir" ]]; then
+        if [[ "$link_target" == "$resolved_source" ]]; then
             return 0  # Already correctly stowed
         fi
     fi
@@ -74,9 +89,10 @@ is_already_stowed() {
     # For lazygit on macOS, also check if config.yml is symlinked
     if [ "$package" = "lazygit" ] && [ "$os" = "macos" ]; then
         if [ -L "$HOME/Library/Application Support/lazygit/config.yml" ]; then
-            local link_target
-            link_target=$(readlink -f "$HOME/Library/Application Support/lazygit/config.yml" 2>/dev/null)
-            if [[ "$link_target" == "$HOME/.config/lazygit/config.yml" ]]; then
+            local link_target resolved_target
+            link_target=$(get_absolute_path "$HOME/Library/Application Support/lazygit/config.yml")
+            resolved_target=$(get_absolute_path "$HOME/.config/lazygit/config.yml")
+            if [[ "$link_target" == "$resolved_target" ]]; then
                 return 0  # Already correctly configured
             fi
         fi
@@ -99,6 +115,35 @@ backup_existing() {
                 }
                 mv "$HOME/.config/bash" "$backup_dir/"
                 print_warning "Backed up existing bash config dir to: $backup_dir"
+            fi
+            ;;
+        bat)
+            # Bat stows individual files, check and backup each
+            local backed_up=0
+            if [ -e "$HOME/.config/bash/bat.sh" ] && [ ! -L "$HOME/.config/bash/bat.sh" ]; then
+                mkdir -p "$backup_dir/bat" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                mv "$HOME/.config/bash/bat.sh" "$backup_dir/bat/" || {
+                    print_error "Failed to backup bat.sh"
+                    return 1
+                }
+                backed_up=1
+            fi
+            if [ -e "$HOME/.config/zsh/bat.zsh" ] && [ ! -L "$HOME/.config/zsh/bat.zsh" ]; then
+                mkdir -p "$backup_dir/bat" || {
+                    print_error "Failed to create backup directory: $backup_dir"
+                    return 1
+                }
+                mv "$HOME/.config/zsh/bat.zsh" "$backup_dir/bat/" || {
+                    print_error "Failed to backup bat.zsh"
+                    return 1
+                }
+                backed_up=1
+            fi
+            if [ $backed_up -eq 1 ]; then
+                print_warning "Backed up existing bat aliases to: $backup_dir/bat"
             fi
             ;;
         git)
@@ -244,9 +289,6 @@ install_package() {
     if [ "$package" = "eza" ]; then
         setup_eza
         return 0
-    elif [ "$package" = "bat" ]; then
-        setup_bat
-        return 0
     elif [ "$package" = "fzf" ]; then
         setup_fzf
         return 0
@@ -282,6 +324,9 @@ install_package() {
         case "$package" in
             bash)
                 setup_bash
+                ;;
+            bat)
+                setup_bat
                 ;;
             git)
                 setup_git

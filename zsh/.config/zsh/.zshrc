@@ -75,6 +75,9 @@ source "$ZDOTDIR/nvim.zsh"
 source "$ZDOTDIR/extras.zsh"
 source "$ZDOTDIR/git.zsh"
 
+# Load bat aliases (if installed)
+[[ -f "$ZDOTDIR/bat.zsh" ]] && source "$ZDOTDIR/bat.zsh"
+
 # Load machine-specific configuration (not version controlled)
 if [[ -f "$ZDOTDIR/.zshrc.local" ]]; then
   source "$ZDOTDIR/.zshrc.local"

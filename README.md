@@ -35,7 +35,7 @@ The installer is interactive, modular, and safe. It backs up existing configurat
 
 **CLI Tools:**
 - [zoxide](zoxide/) - Smart cd replacement
-- **bat** - Cat replacement with syntax highlighting (configured in shell dotfiles)
+- [bat](bat/) - Cat replacement with syntax highlighting and shell aliases
 - **eza** - Modern ls replacement (configured in shell dotfiles)
 - **fzf** - Fuzzy finder (configured in shell dotfiles)
 

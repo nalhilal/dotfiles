@@ -535,7 +535,7 @@ setup_eza() {
 }
 
 setup_bat() {
-    print_info "Setting up bat (better cat)..."
+    print_info "Setting up bat (better cat with syntax highlighting)..."
 
     # Check if bat binary is installed
     if ! check_binary_installed "bat"; then
@@ -558,11 +558,75 @@ setup_bat() {
         print_success "bat binary is already installed"
     fi
 
-    # Bat doesn't require strict shell configuration in this dotfiles setup
-    # (it is used via MANPAGER in zshrc, but no explicit aliases are enforced yet)
-    # So we just ensure it is installed.
+    echo ""
 
-    print_success "bat setup complete!"
+    # Detect current shell
+    local current_shell
+    current_shell="$(basename "$SHELL")"
+    print_info "Detected shell: ${CYAN}$current_shell${NC}"
+
+    case "$current_shell" in
+        bash)
+            # Check if bash dotfiles are installed (prerequisite)
+            if [ ! -f "$HOME/.config/bash/bashrc" ]; then
+                print_warning "Bash dotfiles are not installed. Bat aliases rely on them."
+                print_info "Please install 'bash' package first to enable the dotfiles configuration."
+            else
+                print_success "Bash dotfiles detected"
+            fi
+
+            # Check for conflicting cat alias in ~/.bashrc
+            if [ -f "$HOME/.bashrc" ]; then
+                if grep -E "^[[:space:]]*alias cat=" "$HOME/.bashrc" > /dev/null; then
+                    print_warning "Detected local 'cat' alias in ~/.bashrc that might conflict with bat:"
+                    grep -E "^[[:space:]]*alias cat=" "$HOME/.bashrc" | head -n 1
+
+                    echo ""
+                    read -rp "$(echo -e "${BLUE}Would you like to comment out this local alias to use bat?${NC} [y/N]: ")" fix_bashrc
+                    if [ "$fix_bashrc" = "y" ] || [ "$fix_bashrc" = "Y" ]; then
+                        sed -i '' 's/^\([[:space:]]*alias cat=\)/# \1/' "$HOME/.bashrc"
+                        print_success "Commented out local 'cat' alias in ~/.bashrc"
+                    else
+                        print_info "Kept local alias. Bat aliases might not work as expected."
+                    fi
+                fi
+            fi
+            ;;
+        zsh)
+            # Check if zsh dotfiles are installed (prerequisite)
+            if [ ! -f "$HOME/.config/zsh/.zshrc" ] && [ ! -n "$ZDOTDIR" ]; then
+                print_warning "Zsh dotfiles are not installed. Bat aliases rely on them."
+                print_info "Please install 'zsh' package first to enable the dotfiles configuration."
+            else
+                print_success "Zsh dotfiles detected"
+            fi
+
+            # Check for conflicting cat alias in ~/.config/zsh/.zshrc.local
+            local zsh_local="$HOME/.config/zsh/.zshrc.local"
+            if [ -f "$zsh_local" ]; then
+                if grep -E "^[[:space:]]*alias cat=" "$zsh_local" > /dev/null; then
+                    print_warning "Detected local 'cat' alias in $zsh_local that might conflict with bat:"
+                    grep -E "^[[:space:]]*alias cat=" "$zsh_local" | head -n 1
+
+                    echo ""
+                    read -rp "$(echo -e "${BLUE}Would you like to comment out this local alias to use bat?${NC} [y/N]: ")" fix_zshrc
+                    if [ "$fix_zshrc" = "y" ] || [ "$fix_zshrc" = "Y" ]; then
+                        sed -i '' 's/^\([[:space:]]*alias cat=\)/# \1/' "$zsh_local"
+                        print_success "Commented out local 'cat' alias in $zsh_local"
+                    else
+                        print_info "Kept local alias. Bat aliases might not work as expected."
+                    fi
+                fi
+            fi
+            ;;
+        *)
+            print_warning "Unsupported shell for automatic setup: $current_shell"
+            ;;
+    esac
+
+    print_success "Bat setup complete!"
+    print_info "Bat aliases enabled: ${CYAN}cat${NC} (bat with no paging), ${CYAN}less${NC} (bat with paging)"
+    print_info "Reload your shell to see changes: ${CYAN}exec $current_shell${NC}"
     return 0
 }
 

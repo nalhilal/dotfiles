@@ -9,6 +9,7 @@ CONFIG_DIR="$HOME/.config/bash"
 if [ -d "$CONFIG_DIR" ]; then
     [ -f "$CONFIG_DIR/settings.sh" ] && source "$CONFIG_DIR/settings.sh"
     [ -f "$CONFIG_DIR/aliases.sh" ] && source "$CONFIG_DIR/aliases.sh"
+    [ -f "$CONFIG_DIR/bat.sh" ] && source "$CONFIG_DIR/bat.sh"
 fi
 
 # Initialize Starship (if installed)
