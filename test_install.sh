@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Test suite for install.sh
-# Tests all scenarios in a safe temporary environment
+# Tests the actual installer in a safe temporary environment
 
 set -e
 set -o pipefail
@@ -19,7 +19,8 @@ TESTS_RUN=0
 TESTS_PASSED=0
 TESTS_FAILED=0
 
-# Test environment
+# Locations
+ORIG_DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_DIR=""
 MOCK_HOME=""
 MOCK_DOTFILES=""
@@ -28,18 +29,22 @@ MOCK_DOTFILES=""
 setup_test_env() {
     TEST_DIR=$(mktemp -d)
     MOCK_HOME="$TEST_DIR/home"
-    MOCK_DOTFILES="$TEST_DIR/dotfiles"
+    MOCK_DOTFILES="$TEST_DIR/dotfiles" # Use 'dotfiles' directory to simulate repo root
 
     mkdir -p "$MOCK_HOME"
     mkdir -p "$MOCK_HOME/.config"
     mkdir -p "$MOCK_DOTFILES"
+
+    # Copy installer scripts to mock dotfiles
+    cp "$ORIG_DOTFILES_DIR/install.sh" "$MOCK_DOTFILES/"
+    cp -r "$ORIG_DOTFILES_DIR/install" "$MOCK_DOTFILES/"
 
     # Create macOS Library structure if on macOS
     if [[ "$OSTYPE" == "darwin"* ]]; then
         mkdir -p "$MOCK_HOME/Library/Application Support"
     fi
 
-    # Create mock dotfiles structure
+    # Create mock dotfiles content
     mkdir -p "$MOCK_DOTFILES/nvim/.config/nvim"
     mkdir -p "$MOCK_DOTFILES/lazygit/.config/lazygit"
     mkdir -p "$MOCK_DOTFILES/starship/.config"
@@ -47,6 +52,8 @@ setup_test_env() {
     mkdir -p "$MOCK_DOTFILES/wezterm/.config/wezterm"
     mkdir -p "$MOCK_DOTFILES/zoxide/.config/zoxide"
     mkdir -p "$MOCK_DOTFILES/zsh/.config/zsh"
+    mkdir -p "$MOCK_DOTFILES/bash/.config/bash"
+    mkdir -p "$MOCK_DOTFILES/git/.config/git"
 
     echo "mock nvim config" > "$MOCK_DOTFILES/nvim/.config/nvim/init.lua"
     echo "mock lazygit config" > "$MOCK_DOTFILES/lazygit/.config/lazygit/config.yml"
@@ -59,71 +66,101 @@ setup_test_env() {
     echo "mock zsh config" > "$MOCK_DOTFILES/zsh/.config/zsh/.zshrc"
     echo "mock zsh env" > "$MOCK_DOTFILES/zsh/.config/zsh/.zshenv"
     echo "*.local" > "$MOCK_DOTFILES/zsh/.config/zsh/.gitignore"
+    echo "mock bashrc" > "$MOCK_DOTFILES/bash/.config/bash/bashrc"
+    echo "mock bash_profile" > "$MOCK_DOTFILES/bash/.config/bash/bash_profile"
 
     # Create mock stow command
     cat > "$TEST_DIR/stow" << 'EOF'
 #!/usr/bin/env bash
 # Mock stow command for testing
+# Usage: stow package
+# Since we run in DOTFILES_DIR, stow defaults to stowing into parent dir (TEST_DIR).
+# But we want to stow into MOCK_HOME.
+# The real stow would be run as: stow -t $HOME package (if we used -t)
+# OR we rely on stow's default behavior of ../
+# In our mock structure:
+# TEST_DIR/
+#   dotfiles/ (cwd)
+#   home/     (target?)
+# Stow default target is .., which is TEST_DIR.
+# But we want it to go to MOCK_HOME.
+#
+# To simplify testing without changing install.sh (which assumes stow works relative or is configured),
+# We will make this mock stow behave 'intelligently' based on the environment variables
+# or just implement the logic we expect install.sh to achieve.
+
 package=$1
 dotfiles_dir=$(pwd)
-target_dir="$HOME/.config"
 
-# Detect OS
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    is_macos=true
-else
-    is_macos=false
+# Verify we are in the dotfiles dir
+if [[ "$dotfiles_dir" != *"dotfiles" ]]; then
+    echo "stow: not in dotfiles directory"
+    exit 1
 fi
+
+# Use the mocked HOME as target
+target_dir="$HOME"
 
 case "$package" in
     nvim)
-        mkdir -p "$HOME/.config/nvim"
-        ln -sf "$dotfiles_dir/nvim/.config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/nvim/.config/nvim" "$target_dir/.config/nvim"
         ;;
     lazygit)
-        # lazygit always stows to XDG location
-        mkdir -p "$HOME/.config/lazygit"
-        ln -sf "$dotfiles_dir/lazygit/.config/lazygit/config.yml" "$HOME/.config/lazygit/config.yml"
-        # On macOS, setup_lazygit() will create additional symlinks from Library location
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/lazygit/.config/lazygit" "$target_dir/.config/lazygit"
         ;;
     starship)
-        ln -sf "$dotfiles_dir/starship/.config/starship.toml" "$HOME/.config/starship.toml"
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/starship/.config/starship.toml" "$target_dir/.config/starship.toml"
         ;;
     tmux)
-        mkdir -p "$HOME/.config/tmux"
-        ln -sf "$dotfiles_dir/tmux/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/tmux/.config/tmux" "$target_dir/.config/tmux"
         ;;
     wezterm)
-        mkdir -p "$HOME/.config/wezterm"
-        ln -sf "$dotfiles_dir/wezterm/.config/wezterm/wezterm.lua" "$HOME/.config/wezterm/wezterm.lua"
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/wezterm/.config/wezterm" "$target_dir/.config/wezterm"
         ;;
     zoxide)
-        mkdir -p "$HOME/.config/zoxide"
-        ln -sf "$dotfiles_dir/zoxide/.config/zoxide/README.md" "$HOME/.config/zoxide/README.md"
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/zoxide/.config/zoxide" "$target_dir/.config/zoxide"
         ;;
     zsh)
-        mkdir -p "$HOME/.config/zsh"
-        ln -sf "$dotfiles_dir/zsh/.config/zsh/.zshrc" "$HOME/.config/zsh/.zshrc"
-        ln -sf "$dotfiles_dir/zsh/.config/zsh/.zshenv" "$HOME/.config/zsh/.zshenv"
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/zsh/.config/zsh" "$target_dir/.config/zsh"
+        ;;
+    bash)
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/bash/.config/bash" "$target_dir/.config/bash"
+        ;;
+    git)
+        mkdir -p "$target_dir/.config"
+        ln -sf "$dotfiles_dir/git/.config/git" "$target_dir/.config/git"
         ;;
 esac
 echo "stow: simulating stow $package"
 EOF
     chmod +x "$TEST_DIR/stow"
 
-    # Create mock git command to handle submodule operations
+    # Create mock git command
     cat > "$TEST_DIR/git" << 'EOF'
 #!/usr/bin/env bash
-# Mock git command for testing
 if [ "$1" = "submodule" ] && [ "$2" = "update" ]; then
-    # Simulate successful submodule initialization
     echo "Submodule path 'tmux/.config/tmux/plugins/tpm': cloned"
     exit 0
 fi
-# Pass through to real git for other operations
 exec /usr/bin/git "$@"
 EOF
     chmod +x "$TEST_DIR/git"
+
+    # Create mock starship
+    touch "$TEST_DIR/starship"
+    chmod +x "$TEST_DIR/starship"
+
+    # Create mock zoxide
+    touch "$TEST_DIR/zoxide"
+    chmod +x "$TEST_DIR/zoxide"
 
     echo -e "${CYAN}Test environment created at: $TEST_DIR${NC}"
 }
@@ -208,399 +245,162 @@ assert_symlink() {
     fi
 }
 
-assert_contains() {
-    local file=$1
-    local pattern=$2
-    local message=${3:-"$file should contain '$pattern'"}
-
-    if grep -q "$pattern" "$file" 2>/dev/null; then
-        echo -e "  ${GREEN}✓${NC} $message"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-        return 0
-    else
-        echo -e "  ${RED}✗${NC} $message"
-        echo -e "    ${RED}Pattern not found: $pattern${NC}"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-        return 1
-    fi
-}
-
-# Source the install script functions
-source_install_script() {
-    # We'll source specific functions we need to test
-    # First, let's extract and test the logic
-
-    # Override environment
+run_install_script() {
+    # Set environment variables for the run
     export HOME="$MOCK_HOME"
     export PATH="$TEST_DIR:$PATH"
-    export DOTFILES_DIR="$MOCK_DOTFILES"
+    
+    # Run the script from the mock dotfiles directory
+    # Capturing output to avoid clutter, unless error
+    "$MOCK_DOTFILES/install.sh" "$@" >> "$TEST_DIR/install.log" 2>&1
+    local status=$?
+    
+    if [ $status -ne 0 ]; then
+        echo -e "${RED}Install script failed with status $status${NC}"
+        echo -e "${RED}Output:${NC}"
+        cat "$TEST_DIR/install.log"
+    fi
+    
+    return $status
 }
 
-# Test 1: Shell detection
-test_shell_detection() {
-    print_test "Shell Detection"
-
-    local current_shell
-    current_shell="$(basename "$SHELL")"
-
-    assert_true "true" "Should detect current shell: $current_shell"
-
-    if [ -n "$current_shell" ]; then
-        assert_true "true" "Shell variable should not be empty"
+# Test 1: Install single package (nvim)
+test_install_single_package() {
+    print_test "Install Single Package (nvim)"
+    
+    # Run install.sh
+    if run_install_script "nvim"; then
+        assert_true "0" "Install script execution successful"
     else
-        assert_true "false" "Shell variable should not be empty"
+        assert_true "1" "Install script execution failed"
+        return
     fi
+
+    assert_file_exists "$MOCK_HOME/.config/nvim" "Should create nvim config directory"
+    assert_symlink "$MOCK_HOME/.config/nvim" "Should create symlink to nvim dir"
+    assert_file_exists "$MOCK_HOME/.config/nvim/init.lua" "init.lua should be accessible"
 }
 
-# Test 1.5: OS detection
-test_os_detection() {
-    print_test "OS Detection"
-
-    # Test detect_os function logic
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        assert_true "true" "Should detect macOS (OSTYPE: $OSTYPE)"
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        assert_true "true" "Should detect Linux (OSTYPE: $OSTYPE)"
-    else
-        assert_true "true" "Should detect Unix-like system (OSTYPE: $OSTYPE)"
-    fi
-
-    # Test get_install_command function logic
-    echo -e "${CYAN}  Testing package manager detection:${NC}"
-
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        assert_true "true" "  Should suggest: brew install stow"
-    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        if command -v apt &> /dev/null; then
-            assert_true "true" "  Should suggest: sudo apt install stow"
-        elif command -v pacman &> /dev/null; then
-            assert_true "true" "  Should suggest: sudo pacman -S stow"
-        elif command -v dnf &> /dev/null; then
-            assert_true "true" "  Should suggest: sudo dnf install stow"
-        elif command -v yum &> /dev/null; then
-            assert_true "true" "  Should suggest: sudo yum install stow"
-        else
-            assert_true "true" "  Should suggest generic package manager"
-        fi
-    fi
-}
-
-# Test 2: Dependency checking
-test_dependency_check() {
-    print_test "Dependency Checking"
-
-    # Mock stow is in PATH
-    if command -v stow &> /dev/null; then
-        assert_true "true" "Mock stow should be available"
-    else
-        assert_true "false" "Mock stow should be available"
-    fi
-}
-
-# Test 3: Backup functionality
+# Test 2: Backup existing functionality
 test_backup_existing() {
     print_test "Backup Existing Configurations"
 
-    source_install_script
-
     # Create existing config
-    mkdir -p "$MOCK_HOME/.config/nvim"
-    echo "existing config" > "$MOCK_HOME/.config/nvim/init.lua"
+    mkdir -p "$MOCK_HOME/.config/tmux"
+    echo "existing config" > "$MOCK_HOME/.config/tmux/tmux.conf"
 
-    # Simulate backup
-    local backup_dir="$MOCK_HOME/.dotfiles_backup/test"
-    mkdir -p "$backup_dir"
+    # Run install.sh
+    run_install_script "tmux"
 
-    if [ -f "$MOCK_HOME/.config/nvim/init.lua" ]; then
-        mv "$MOCK_HOME/.config/nvim" "$backup_dir/"
-        assert_file_exists "$backup_dir/nvim/init.lua" "Should backup existing config"
-        assert_file_not_exists "$MOCK_HOME/.config/nvim/init.lua" "Original should be moved"
+    # Check backup
+    # Find the backup directory (it has a timestamp)
+    local backup_dir
+    backup_dir=$(find "$MOCK_HOME/.dotfiles_backup" -type d -name "20*" | head -n 1)
+
+    if [ -n "$backup_dir" ]; then
+        assert_true "0" "Backup directory created: $backup_dir"
+        assert_file_exists "$backup_dir/tmux/tmux.conf" "Should backup existing config"
+    else
+        assert_true "1" "Backup directory not found"
     fi
+    
+    assert_symlink "$MOCK_HOME/.config/tmux" "New config directory should be stowed"
+    assert_file_exists "$MOCK_HOME/.config/tmux/tmux.conf" "tmux.conf should be accessible"
 }
 
-# Test 4: Already stowed detection
-test_already_stowed() {
-    print_test "Already Stowed Detection"
+# Test 3: Zsh setup (creates files)
+test_zsh_setup() {
+    print_test "Zsh Setup"
 
-    source_install_script
+    # Run install.sh
+    run_install_script "zsh"
 
-    # Create a symlink (simulating already stowed)
-    mkdir -p "$MOCK_HOME/.config"
-    ln -s "$MOCK_DOTFILES/nvim/.config/nvim" "$MOCK_HOME/.config/nvim"
-
-    assert_symlink "$MOCK_HOME/.config/nvim" "Should detect existing symlink"
-
-    # Clean up for next tests
-    rm -f "$MOCK_HOME/.config/nvim"
-}
-
-# Test 5: Install single package (nvim)
-test_install_single_package() {
-    print_test "Install Single Package (nvim)"
-
-    source_install_script
-    cd "$MOCK_DOTFILES"
-
-    # Run mock stow
-    bash "$TEST_DIR/stow" nvim
-
-    assert_file_exists "$MOCK_HOME/.config/nvim" "Should create nvim config directory"
-    assert_symlink "$MOCK_HOME/.config/nvim/init.lua" "Should create symlink to init.lua"
-}
-
-# Test 6: Install zsh with full setup
-test_install_zsh() {
-    print_test "Install Zsh with Full Setup"
-
-    source_install_script
-    cd "$MOCK_DOTFILES"
-
-    # Run mock stow
-    bash "$TEST_DIR/stow" zsh
-
-    assert_symlink "$MOCK_HOME/.config/zsh/.zshrc" "Should symlink .zshrc"
-    assert_symlink "$MOCK_HOME/.config/zsh/.zshenv" "Should symlink .zshenv"
-
-    # Simulate zsh setup
-    cat > "$MOCK_HOME/.zshenv" << 'EOF'
-# Set XDG-compliant zsh config directory
-export ZDOTDIR="$HOME/.config/zsh"
-EOF
-
-    cat > "$MOCK_HOME/.zshrc" << 'EOF'
-# This file exists for installers that try to modify ~/.zshrc
-# Zsh ignores this file because ZDOTDIR is set in ~/.zshenv
-EOF
-
-    cat > "$MOCK_HOME/.config/zsh/.zshrc.local" << 'EOF'
-# Machine-specific Zsh Configuration
-EOF
-
+    assert_symlink "$MOCK_HOME/.config/zsh" "Should symlink zsh config dir"
+    assert_file_exists "$MOCK_HOME/.config/zsh/.zshrc" "Should have .zshrc in config dir"
     assert_file_exists "$MOCK_HOME/.zshenv" "Should create ~/.zshenv"
     assert_file_exists "$MOCK_HOME/.zshrc" "Should create placeholder ~/.zshrc"
     assert_file_exists "$MOCK_HOME/.config/zsh/.zshrc.local" "Should create .zshrc.local"
-
-    assert_contains "$MOCK_HOME/.zshenv" "ZDOTDIR" "~/.zshenv should set ZDOTDIR"
-    assert_contains "$MOCK_HOME/.zshrc" "installers" "~/.zshrc should be placeholder"
-    assert_contains "$MOCK_HOME/.config/zsh/.zshrc.local" "Machine-specific" ".zshrc.local should be template"
 }
 
-# Test 7: Install multiple packages
-test_install_multiple_packages() {
-    print_test "Install Multiple Packages"
-
-    source_install_script
-    cd "$MOCK_DOTFILES"
-
-    # Clean previous test
-    rm -rf "$MOCK_HOME/.config/nvim"
-    rm -rf "$MOCK_HOME/.config/zsh"
-
-    # Install nvim and zsh
-    bash "$TEST_DIR/stow" nvim
-    bash "$TEST_DIR/stow" zsh
-
-    assert_symlink "$MOCK_HOME/.config/nvim/init.lua" "Should install nvim"
-    assert_symlink "$MOCK_HOME/.config/zsh/.zshrc" "Should install zsh"
-}
-
-# Test 8: Execution order verification
-test_execution_order() {
-    print_test "Execution Order Verification"
-
-    echo -e "${CYAN}Verifying script execution flow:${NC}"
-    echo ""
-    echo "1. Check dependencies (stow)"
-    echo "2. Detect shell"
-    echo "3. Backup existing configs"
-    echo "4. Run stow for each package"
-    echo "5. For zsh: create .zshenv, .zshrc, .zshrc.local"
-    echo "6. Show completion message"
-
-    assert_true "true" "Execution order is correct"
-}
-
-# Test 9: Error handling
-test_error_handling() {
-    print_test "Error Handling"
-
-    source_install_script
-
-    # Test with invalid package name
-    local invalid_pkg="nonexistent"
-    local available_packages=("git" "lazygit" "nvim" "starship" "tmux" "wezterm" "zoxide" "zsh")
-
-    if [[ " ${available_packages[*]} " =~ " $invalid_pkg " ]]; then
-        assert_true "false" "Should reject invalid package name"
+# Test 4: Bash setup
+test_bash_setup() {
+    print_test "Bash Setup"
+    
+    run_install_script "bash"
+    
+    assert_file_exists "$MOCK_HOME/.bashrc" "Should create .bashrc"
+    
+    if grep -q "source.*\.config/bash/bashrc" "$MOCK_HOME/.bashrc"; then
+        assert_true "0" ".bashrc should source dotfiles bashrc"
     else
-        assert_true "true" "Should reject invalid package name"
-    fi
-
-    # Test package directory validation
-    echo -e "${CYAN}  Testing package directory validation:${NC}"
-    if [ -d "$MOCK_DOTFILES/nvim" ]; then
-        assert_true "true" "  Should validate existing package directory"
-    fi
-
-    if [ ! -d "$MOCK_DOTFILES/nonexistent" ]; then
-        assert_true "true" "  Should reject non-existent package directory"
+        assert_true "1" ".bashrc missing source command"
     fi
 }
 
-# Test 9.5: Enhanced symlink verification
-test_enhanced_symlink_verification() {
-    print_test "Enhanced Symlink Verification"
-
-    set +e  # Temporarily disable exit on error for tests
-    source_install_script
-
-    # Clean up from previous tests
-    rm -rf "$MOCK_HOME/.config/nvim"
-
-    # Create correct symlink
-    mkdir -p "$MOCK_HOME/.config"
-    ln -s "$MOCK_DOTFILES/nvim/.config/nvim" "$MOCK_HOME/.config/nvim"
-
-    local link_target
-    link_target=$(readlink -f "$MOCK_HOME/.config/nvim" 2>/dev/null)
-
-    if [[ "$link_target" == "$MOCK_DOTFILES/nvim/.config/nvim" ]]; then
-        assert_true "true" "Should verify symlink points to correct dotfiles directory" || true
+# Test 5: Re-running installation (idempotency/skip)
+test_rerun() {
+    print_test "Idempotency (Re-run)"
+    
+    # Run nvim installation again (it was installed in test 1, but we share env?
+    # Actually wait, if we share env, nvim IS installed.
+    # The previous tests modified the env.
+    
+    # Note: run_install_script doesn't clear env.
+    
+    run_install_script "nvim"
+    
+    # It should succeed and say "already stowed" in log
+    if grep -q "already stowed" "$TEST_DIR/install.log"; then
+        assert_true "0" "Should detect already stowed package"
     else
-        assert_true "false" "Should verify symlink points to correct dotfiles directory" || true
+        # cat "$TEST_DIR/install.log"
+        assert_true "1" "Should have skipped installation (check log)"
     fi
+}
 
-    # Test with wrong symlink
-    rm -f "$MOCK_HOME/.config/nvim"
-    mkdir -p "$TEST_DIR/wrong_dotfiles/nvim/.config/nvim"
-    ln -sf "$TEST_DIR/wrong_dotfiles/nvim/.config/nvim" "$MOCK_HOME/.config/nvim"
-
-    link_target=$(readlink -f "$MOCK_HOME/.config/nvim" 2>/dev/null)
-
-    if [[ "$link_target" != "$MOCK_DOTFILES/nvim/.config/nvim" ]]; then
-        assert_true "true" "Should detect symlink pointing to wrong directory" || true
+# Test 6: Invalid package
+test_invalid_package() {
+    print_test "Invalid Package"
+    
+    set +e
+    run_install_script "invalid-package"
+    local status=$?
+    set -e
+    
+    if [ $status -ne 0 ]; then
+        assert_true "0" "Should fail with invalid package"
     else
-        assert_true "false" "Should detect symlink pointing to wrong directory" || true
-    fi
-
-    # Clean up
-    rm -rf "$MOCK_HOME/.config/nvim"
-    rm -rf "$TEST_DIR/wrong_dotfiles"
-    set -e  # Re-enable exit on error
-}
-
-# Test 9.6: Backup error handling
-test_backup_error_handling() {
-    print_test "Backup Error Handling"
-
-    source_install_script
-
-    # Test successful backup
-    mkdir -p "$MOCK_HOME/.config/nvim"
-    echo "test config" > "$MOCK_HOME/.config/nvim/init.lua"
-
-    local backup_dir="$MOCK_HOME/.dotfiles_backup/error_test"
-    mkdir -p "$backup_dir"
-
-    if [ -e "$MOCK_HOME/.config/nvim" ] && [ ! -L "$MOCK_HOME/.config/nvim" ]; then
-        # Simulate successful backup
-        if mv "$MOCK_HOME/.config/nvim" "$backup_dir/" 2>/dev/null; then
-            assert_true "true" "Should successfully backup existing config"
-            assert_file_exists "$backup_dir/nvim/init.lua" "Backup file should exist"
-        else
-            assert_true "false" "Backup should not fail with proper permissions"
-        fi
-    fi
-
-    # Test detection of non-regular files/directories
-    echo -e "${CYAN}  Testing backup scenarios:${NC}"
-    assert_true "true" "  Should handle backup directory creation"
-    assert_true "true" "  Should handle file move operations"
-    assert_true "true" "  Should preserve .zshrc.local during backup"
-}
-
-# Test 10: Preserve .zshrc.local on reinstall
-test_preserve_zshrc_local() {
-    print_test "Preserve .zshrc.local on Reinstall"
-
-    source_install_script
-
-    # Create existing .zshrc.local with custom content
-    mkdir -p "$MOCK_HOME/.config/zsh"
-    echo "# My custom config" > "$MOCK_HOME/.config/zsh/.zshrc.local"
-    echo "export CUSTOM_VAR=test" >> "$MOCK_HOME/.config/zsh/.zshrc.local"
-
-    # Simulate backup that preserves .zshrc.local
-    local backup_dir="$MOCK_HOME/.dotfiles_backup/test2"
-    mkdir -p "$backup_dir"
-
-    if [ -f "$MOCK_HOME/.config/zsh/.zshrc.local" ]; then
-        cp "$MOCK_HOME/.config/zsh/.zshrc.local" "$backup_dir/.zshrc.local.keep"
-        assert_file_exists "$backup_dir/.zshrc.local.keep" "Should preserve .zshrc.local in backup"
-        assert_contains "$backup_dir/.zshrc.local.keep" "CUSTOM_VAR" "Should preserve custom content"
+        assert_true "1" "Should fail with invalid package"
     fi
 }
 
-# Print summary
-print_summary() {
-    echo ""
-    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BLUE}           TEST SUMMARY${NC}"
-    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo ""
-    echo -e "Tests Run:    ${CYAN}$TESTS_RUN${NC}"
-    echo -e "Tests Passed: ${GREEN}$TESTS_PASSED${NC}"
-    echo -e "Tests Failed: ${RED}$TESTS_FAILED${NC}"
-    echo ""
-
-    if [ $TESTS_FAILED -eq 0 ]; then
-        echo -e "${GREEN}✓ All tests passed!${NC}"
-        echo ""
-        return 0
-    else
-        echo -e "${RED}✗ Some tests failed!${NC}"
-        echo ""
-        return 1
-    fi
-}
-
-# Main test runner
 main() {
-    set +e  # Disable exit on error for test runner
+    set +e
     echo ""
     echo -e "${CYAN}╔════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║${NC}   Install Script Test Suite          ${CYAN}║${NC}"
+    echo -e "${CYAN}║${NC}   Install Script Test Suite (E2E)    ${CYAN}║${NC}"
     echo -e "${CYAN}╚════════════════════════════════════════╝${NC}"
     echo ""
 
     setup_test_env
 
-    # Run all tests
-    test_shell_detection
-    test_os_detection
-    test_dependency_check
-    test_backup_existing
-    test_already_stowed
     test_install_single_package
-    test_install_zsh
-    test_install_multiple_packages
-    test_execution_order
-    test_error_handling
-    test_enhanced_symlink_verification
-    test_backup_error_handling
-    test_preserve_zshrc_local
+    test_backup_existing
+    test_zsh_setup
+    test_bash_setup
+    test_rerun
+    test_invalid_package
 
-    # Print summary
-    local exit_code=0
-    if ! print_summary; then
-        exit_code=1
+    echo ""
+    if [ $TESTS_FAILED -eq 0 ]; then
+        echo -e "${GREEN}✓ All tests passed!${NC}"
+        cleanup_test_env
+        exit 0
+    else
+        echo -e "${RED}✗ Some tests failed!${NC}"
+        # cleanup_test_env # Keep env for inspection on failure?
+        exit 1
     fi
-
-    # Cleanup
-    cleanup_test_env
-
-    exit $exit_code
 }
 
-# Run tests
 main

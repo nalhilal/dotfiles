@@ -1,0 +1,35 @@
+# ~/.bashrc
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# Source modular config
+CONFIG_DIR="$HOME/.config/bash"
+
+if [ -d "$CONFIG_DIR" ]; then
+    [ -f "$CONFIG_DIR/settings.sh" ] && source "$CONFIG_DIR/settings.sh"
+    [ -f "$CONFIG_DIR/aliases.sh" ] && source "$CONFIG_DIR/aliases.sh"
+fi
+
+# Initialize Starship (if installed)
+if command -v starship &> /dev/null; then
+    eval "$(starship init bash)"
+else
+    # Fallback PS1
+    PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+fi
+
+# Initialize Zoxide (if installed)
+if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init bash)"
+fi
+
+# Initialize FZF (if installed)
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# Local customizations
+if [ -f ~/.bashrc.local ]; then
+    source ~/.bashrc.local
+elif [ -f "$CONFIG_DIR/bashrc.local" ]; then
+    source "$CONFIG_DIR/bashrc.local"
+fi
