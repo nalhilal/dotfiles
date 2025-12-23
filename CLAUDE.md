@@ -23,23 +23,32 @@ When stowed from `~/.dotfiles`, files are symlinked to their target locations (e
 
 ### Installation Script Architecture
 
-**install.sh** is the main installation orchestrator with these key responsibilities:
+**install.sh** is now a modular orchestrator that sources components from the `install/` directory:
 
-1. **Cross-Platform Support**: Detects OS (macOS/Linux) and package managers (brew/apt/pacman/dnf/yum)
+1. **Core Structure** (`install/`):
+   - **utils.sh**: Shared utilities, logging, OS/shell detection
+   - **packages.sh**: Package management (check, backup, stow)
+   - **setup.sh**: Application-specific configuration logic (zsh, git, tmux, etc.)
+   - **interactive.sh**: Interactive menu and user input handling
+
 2. **Package Installation Flow**:
-   - Validates package directory exists
-   - Checks if already stowed (using `readlink -f` for relative symlink resolution)
-   - Backs up existing configurations to `~/.dotfiles_backup/TIMESTAMP/`
-   - Runs `stow <package>` from `$DOTFILES_DIR`
-   - Executes package-specific setup functions
+   - Main script initializes and sources modules
+   - Checks dependencies (stow)
+   - Runs interactive mode or processes command-line arguments
+   - `install_package()` (from packages.sh) handles the heavy lifting:
+     - Validates package directory
+     - Checks if already stowed
+     - Backs up existing configs
+     - Runs `stow`
+     - Calls specific setup functions (from setup.sh) if needed
 
-3. **Special Package Handlers**:
-   - **git**: Creates `config.local` for machine-specific user details if it doesn't exist
-   - **tmux**: Initializes git submodules for plugins (TPM and plugins), verifies plugin directory structure (see Tmux Git Submodules below)
-   - **lazygit**: On macOS, creates symlinks from `~/Library/Application Support/lazygit/` to `~/.config/lazygit/` (see Lazygit Cross-Platform Handling below)
-   - **zsh**: Creates `~/.zshenv` with ZDOTDIR, placeholder `~/.zshrc`, and `.zshrc.local`
-   - **starship**: Checks/installs binary, detects shell, offers zsh integration, adds init to RC files
-   - **zoxide**: Checks/installs binary, detects shell, adds init to RC files
+3. **Special Package Handlers** (in `install/setup.sh`):
+   - **bash**: Updates `~/.bashrc` and `~/.bash_profile` to source dotfiles config
+   - **git**: Creates `config.local` for machine-specific user details
+   - **tmux**: Initializes git submodules for plugins
+   - **lazygit**: Handles macOS vs Linux config locations
+   - **zsh**: Sets up ZDOTDIR environment and placeholder files
+   - **starship/zoxide**: Installs binaries and configures shell integration
 
 ### Key Design Patterns
 
@@ -54,19 +63,18 @@ When stowed from `~/.dotfiles`, files are symlinked to their target locations (e
 ### Testing
 
 ```bash
-# Run full test suite (33 tests across 13 scenarios)
-bash test_install.sh
-
-# Tests are non-destructive - use temporary directory with mock environment
-# All tests must pass before committing install.sh changes
+# Run End-to-End (E2E) test suite
+./test_install.sh
 ```
 
-Test suite validates:
-- OS/package manager detection
-- Symlink creation and verification (including relative vs absolute paths)
-- Backup operations with error handling
-- Package-specific setups (zsh, starship)
-- `.zshrc.local` preservation across reinstalls
+The test suite is **safe and non-destructive**. It:
+1. Creates a temporary directory (e.g., `/tmp/tmp.XXXXXX`)
+2. Mocks a fresh `$HOME` and `$DOTFILES_DIR` inside it
+3. Copies the actual `install.sh` and `install/` modules to the mock environment
+4. **Executes the real installer** against the mock environment
+5. Verifies outcomes (symlinks created, files backed up, idempotency)
+
+**CRITICAL**: Always run `./test_install.sh` before committing changes to the installation logic.
 
 ### Installation Testing
 

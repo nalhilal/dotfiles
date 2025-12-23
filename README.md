@@ -23,10 +23,12 @@ Run the interactive install script:
 ./install.sh
 ```
 
-The script will:
+The script is **modular and safe**. It runs in a way that protects your existing data by backing up any conflicting configurations before installing.
+
+It will:
 - Detect your current shell
 - Check for dependencies (GNU Stow)
-- Backup existing configurations
+- Backup existing configurations to `~/.dotfiles_backup/`
 - Let you choose which packages to install
 - Handle zsh setup automatically (creates `~/.zshenv`, `.zshrc`, etc.)
 
@@ -63,6 +65,15 @@ echo 'export ZDOTDIR="$HOME/.config/zsh"' > ~/.zshenv
 ```
 
 ## What's Included
+
+### Bash
+
+Modular Bash configuration located in `~/.config/bash/`:
+- **Structure**: Separates aliases, settings, and profile configuration
+- **Integration**: Sources `~/.config/bash/bashrc` from your main `~/.bashrc`
+- **Login Shell**: Sources `~/.config/bash/bash_profile` from `~/.bash_profile`
+
+To install: `stow bash`. The install script will automatically update your `~/.bashrc` and `~/.bash_profile` to source these files.
 
 ### Git
 
