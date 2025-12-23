@@ -288,7 +288,7 @@ git push
    - `~/.bashrc` - Sources `~/.config/bash/bashrc`
    - `~/.bash_profile` - Sources `~/.config/bash/bash_profile`
 2. **Dotfiles Configs** (stowed to `~/.config/bash/`, contain all actual configuration):
-   - `bashrc` - Main entry point, sources modular configs and initializes tools (starship, zoxide, fzf)
+   - `bashrc` - Main entry point, sources modular configs and initializes tools (starship, zoxide, fzf, bat manpager)
    - `bash_profile` - Sources `~/.bashrc` for login shells
    - `settings.sh` - History, shell options, environment
    - `aliases.sh` - All aliases (eza, git, nvim, etc.)

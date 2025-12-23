@@ -27,6 +27,11 @@ fi
 # Initialize FZF (if installed)
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
+# Bat as MANPAGER (if installed)
+if command -v bat &> /dev/null; then
+    export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+fi
+
 # Local customizations
 if [ -f ~/.bashrc.local ]; then
     source ~/.bashrc.local

@@ -85,7 +85,7 @@ Modular Bash configuration using the **dotfiles as extension pattern**:
 - `~/.bash_profile` - Minimally modified to source `~/.config/bash/bash_profile`
 
 **Dotfiles Configuration** (located in `~/.config/bash/`):
-- `bashrc` - Main configuration, sources modular files and initializes tools
+- `bashrc` - Main configuration, sources modular files and initializes tools (starship, zoxide, fzf, bat manpager)
 - `bash_profile` - Login shell configuration
 - `settings.sh` - History settings, shell options, environment variables
 - `aliases.sh` - All aliases (eza, git, nvim, navigation shortcuts)
@@ -101,9 +101,10 @@ A modern replacement for `cat` with syntax highlighting and Git integration:
 - Syntax highlighting for many programming languages
 - Git integration shows file modifications
 - Line numbers and paging support
-- Used as the MANPAGER in zsh configuration
+- Used as the MANPAGER in bash and zsh configurations
+- Powers fzf preview windows with syntax highlighting
 
-The installer will offer to install the `bat` binary if not already present. Configuration is handled automatically through shell dotfiles (used for MANPAGER in zsh).
+The installer will offer to install the `bat` binary if not already present. Configuration is handled automatically through shell dotfiles (MANPAGER export and fzf integration).
 
 To install: `./install.sh bat`
 
@@ -240,14 +241,14 @@ Modular Zsh configuration using the **dotfiles as extension pattern** with ZDOTD
 - `~/.zshrc` - Placeholder file with warnings (ignored when ZDOTDIR is set)
 
 **Dotfiles Configuration** (located in `~/.config/zsh/`):
-- `.zshrc` - Main configuration, sources all modular files
+- `.zshrc` - Main configuration, sources all modular files and sets bat as MANPAGER
 - `.zshenv` - Environment variables
 - `starship.zsh` - Starship prompt initialization
 - `zoxide.zsh` - Zoxide (smart cd) setup
 - `fzf.zsh` - Fuzzy finder configuration
 - `git.zsh` - Git aliases and functions
 - `nvim.zsh` - Neovim integration
-- `extras.zsh` - Additional configurations (eza aliases, bat manpager)
+- `extras.zsh` - Additional configurations (eza aliases, ngrok completion)
 
 **Local Overrides**:
 - `~/.config/zsh/.zshrc.local` - Machine-specific config (auto-generated, not tracked)
