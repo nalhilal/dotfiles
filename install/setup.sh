@@ -329,7 +329,7 @@ add_starship_to_shell() {
         *)
             print_warning "Unknown shell: $shell"
             print_info "Add this to your shell RC file manually:"
-            echo -e "  ${CYAN}eval \"\\$(starship init $shell)\"${NC}"
+            echo -e "  ${CYAN}eval \"\$(starship init $shell)\"${NC}"
             return 1
             ;;
     esac
@@ -454,5 +454,60 @@ add_zoxide_to_shell() {
     echo "$init_line" >> "$rc_file"
 
     print_success "Added zoxide initialization to $rc_file"
+    return 0
+}
+
+setup_eza() {
+    print_info "Setting up eza (modern ls replacement)..."
+
+    # Check if eza binary is installed
+    if ! check_binary_installed "eza"; then
+        print_warning "eza binary is not installed"
+        echo ""
+        read -rp "$(echo -e "${BLUE}Would you like to install eza now?${NC} [Y/n]: ")" install_confirm
+
+        if [ "$install_confirm" != "n" ] && [ "$install_confirm" != "N" ]; then
+            if ! install_binary "eza"; then
+                print_error "eza installation failed"
+                print_info "You can install it manually later with: ${CYAN}$(get_install_command eza)${NC}"
+                return 1
+            fi
+        else
+            print_info "Skipping eza binary installation"
+            print_info "Install it later with: ${CYAN}$(get_install_command eza)${NC}"
+            return 1
+        fi
+    else
+        print_success "eza binary is already installed"
+    fi
+
+    echo ""
+
+    # Detect current shell and confirm alias setup
+    local current_shell
+    current_shell="$(basename "$SHELL")"
+    print_info "Detected shell: ${CYAN}$current_shell${NC}"
+
+    case "$current_shell" in
+        bash)
+            if [ -f "$HOME/.config/bash/aliases.sh" ]; then
+                print_success "Bash aliases for eza are configured in ~/.config/bash/aliases.sh"
+            else
+                print_warning "Bash aliases file not found. Ensure you have installed the bash dotfiles."
+            fi
+            ;;
+        zsh)
+            if [ -f "$HOME/.config/zsh/extras.zsh" ]; then
+                print_success "Zsh aliases for eza are configured in ~/.config/zsh/extras.zsh"
+            else
+                print_warning "Zsh extras file not found. Ensure you have installed the zsh dotfiles."
+            fi
+            ;;
+        *)
+            print_warning "Unsupported shell for automatic alias verification: $current_shell"
+            ;;
+    esac
+
+    print_success "eza setup complete!"
     return 0
 }

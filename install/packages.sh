@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Available packages
-AVAILABLE_PACKAGES=("bash" "git" "lazygit" "nvim" "starship" "tmux" "wezterm" "zoxide" "zsh")
+AVAILABLE_PACKAGES=("bash" "eza" "git" "lazygit" "nvim" "starship" "tmux" "wezterm" "zoxide" "zsh")
 
 is_already_stowed() {
     local package=$1
@@ -13,6 +13,12 @@ is_already_stowed() {
         bash)
             target_dir="$HOME/.config/bash"
             source_dir="$DOTFILES_DIR/bash/.config/bash"
+            ;;
+        eza)
+            if check_binary_installed "eza"; then
+                return 0
+            fi
+            return 1
             ;;
         git)
             target_dir="$HOME/.config/git"
@@ -233,6 +239,12 @@ backup_existing() {
 
 install_package() {
     local package=$1
+
+    # Special handling for binary-only packages
+    if [ "$package" = "eza" ]; then
+        setup_eza
+        return 0
+    fi
 
     # Verify package directory exists
     if [ ! -d "$DOTFILES_DIR/$package" ]; then

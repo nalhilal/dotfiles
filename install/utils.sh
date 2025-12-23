@@ -68,7 +68,9 @@ get_install_command() {
     if [ "$os" = "macos" ]; then
         echo "brew install $package"
     elif [ "$os" = "linux" ]; then
-        if command -v apt &> /dev/null; then
+        if command -v brew &> /dev/null; then
+            echo "brew install $package"
+        elif command -v apt &> /dev/null; then
             echo "sudo apt install $package"
         elif command -v pacman &> /dev/null; then
             echo "sudo pacman -S $package"
