@@ -10,7 +10,7 @@ cd ~/.dotfiles
 ./install.sh
 ```
 
-The installer is interactive, modular, and safe. It backs up existing configurations and lets you choose which packages to install.
+The installer is interactive, modular, and safe. It backs up existing configurations, lets you choose which packages to install, and automatically reloads your shell to apply changes immediately.
 
 **Options:**
 ```bash

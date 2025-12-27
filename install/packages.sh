@@ -11,6 +11,17 @@ is_already_stowed() {
 
     case "$package" in
         bash)
+            # Bash may have individual files stowed if the directory existed before stowing
+            # Check if at least one key file is stowed correctly
+            if [ -L "$HOME/.config/bash/bashrc" ]; then
+                local link_target resolved_source
+                link_target=$(get_absolute_path "$HOME/.config/bash/bashrc")
+                resolved_source=$(get_absolute_path "$DOTFILES_DIR/bash/.config/bash/bashrc")
+                if [[ "$link_target" == "$resolved_source" ]]; then
+                    return 0
+                fi
+            fi
+            # Fall back to checking if entire directory is stowed
             target_dir="$HOME/.config/bash"
             source_dir="$DOTFILES_DIR/bash/.config/bash"
             ;;

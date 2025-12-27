@@ -73,4 +73,7 @@ interactive_mode() {
     for pkg in "${packages_to_install[@]}"; do
         install_package "$pkg"
     done
+
+    # Export installed packages for main function to use
+    export INSTALLED_PACKAGES="${packages_to_install[*]}"
 }

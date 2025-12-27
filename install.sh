@@ -94,6 +94,10 @@ main() {
     # Determine mode
     if [ $interactive -eq 1 ] || [ ${#packages_to_install[@]} -eq 0 ] && [ $install_all -eq 0 ]; then
         interactive_mode
+        # Get installed packages from interactive mode
+        if [ -n "$INSTALLED_PACKAGES" ]; then
+            IFS=' ' read -r -a packages_to_install <<< "$INSTALLED_PACKAGES"
+        fi
     else
         if [ $install_all -eq 1 ]; then
             packages_to_install=("${AVAILABLE_PACKAGES[@]}")
@@ -117,16 +121,42 @@ main() {
         echo -e "  - Reload your shell to activate Starship prompt"
     fi
 
+    # Determine if we should offer to reload the shell
+    local should_reload=0
+    local reload_shell=""
+
+    if [[ " ${packages_to_install[*]} " =~ " bash " ]] || [[ " ${packages_to_install[*]} " =~ " zsh " ]] || \
+       [[ " ${packages_to_install[*]} " =~ " starship " ]] || [[ " ${packages_to_install[*]} " =~ " zoxide " ]] || \
+       [[ " ${packages_to_install[*]} " =~ " bat " ]]; then
+        should_reload=1
+        # Use current shell
+        reload_shell="$(basename "$SHELL")"
+    fi
+
     if [[ " ${packages_to_install[*]} " =~ " zsh " ]]; then
-        echo -e "  - Restart your terminal or run: ${CYAN}exec zsh${NC}"
         echo -e "  - Add machine-specific config to: ${CYAN}~/.config/zsh/.zshrc.local${NC}"
     fi
 
     if [[ " ${packages_to_install[*]} " =~ " bash " ]]; then
-        echo -e "  - Restart your terminal or run: ${CYAN}exec bash${NC}"
         echo -e "  - Add machine-specific config to: ${CYAN}~/.bashrc.local${NC}"
     fi
+
     echo ""
+
+    # Offer to reload shell immediately
+    if [ $should_reload -eq 1 ]; then
+        echo -e "${BLUE}Shell configuration has been updated.${NC}"
+        read -rp "$(echo -e "Would you like to reload your shell now to apply changes? [Y/n]: ")" reload_confirm
+
+        if [ "$reload_confirm" != "n" ] && [ "$reload_confirm" != "N" ]; then
+            print_info "Reloading shell..."
+            echo ""
+            exec "$SHELL"
+        else
+            print_info "Remember to reload your shell later with: ${CYAN}exec $reload_shell${NC}"
+            echo ""
+        fi
+    fi
 }
 
 # Run main function

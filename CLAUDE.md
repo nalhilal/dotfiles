@@ -30,7 +30,9 @@ When stowed from `~/.dotfiles`, files symlink to `~/.config/package_name/`.
 - `setup.sh` - Application-specific setup (zsh, git, tmux, etc.)
 - `interactive.sh` - Interactive menu
 
-Flow: init → check dependencies → interactive/CLI mode → `install_package()` → stow → setup functions
+Flow: init → check dependencies → interactive/CLI mode → `install_package()` → stow → setup functions → auto-reload prompt
+
+**Auto-reload Feature**: After installing shell-related packages (bash, zsh, starship, zoxide, bat), the script prompts to reload the shell with `exec $SHELL`, applying changes immediately without manual intervention.
 
 ### Shell Extension Pattern
 
@@ -124,9 +126,11 @@ Config uses Lua runtime detection for fonts, cursor, padding. No install script 
 ## Common Gotchas
 
 1. **Symlink Detection**: Use `get_absolute_path()` helper (not raw `readlink -f`) - handles both Linux and macOS, resolves `/var` vs `/private/var`
-2. **Error Messages**: Provide actionable suggestions
-3. **RC File Modification**: Only in `setup_bash()` and `setup_zsh()` - check if already exists before appending
-4. **Package Managers**: Handle systems without standard package managers
+2. **Individual File Symlinks**: Some packages (bash, bat) may have individual file symlinks instead of directory symlinks when `~/.config/<package>/` already exists. Detection functions should check for key files (e.g., `bashrc` for bash, `bat.sh` for bat) as primary detection method, falling back to directory symlink check.
+3. **Error Messages**: Provide actionable suggestions
+4. **RC File Modification**: Only in `setup_bash()` and `setup_zsh()` - check if already exists before appending
+5. **Package Managers**: Handle systems without standard package managers
+6. **Shell Reload**: `exec $SHELL` replaces current process - useful for auto-reload at end of install script, but cannot affect parent shell when run from within a script
 
 ## Theme
 
