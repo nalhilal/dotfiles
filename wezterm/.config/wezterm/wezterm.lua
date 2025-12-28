@@ -47,8 +47,8 @@ elseif is_linux() then
 	-- Linux settings (including Arch)
 	font_config = {
 		-- font = wezterm.font("JetBrains Mono Nerd Font", { weight = "Regular" }),
-		font = wezterm.font("D2CodingLigature Nerd Font Mono", { weight = "Regular" }),
-		font_size = 13.0,
+		font = wezterm.font("JetBrainsMono Nerd Font Mono", { weight = "Light" }),
+		font_size = 11.0,
 	}
 	cursor_config = {
 		-- default_cursor_style = "SteadyBlock",
