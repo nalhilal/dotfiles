@@ -1,0 +1,34 @@
+---
+description: Shell init and tool integration patterns
+globs: **/.config/zsh/**,**/.config/bash/**,**/starship/**
+alwaysApply: false
+---
+
+# Shell and Tool Config
+
+## Shell init ownership
+
+Tool init lives in **zsh/bash packages**, not tool packages:
+
+| Tool | Init file | Config files |
+|------|-----------|--------------|
+| Starship | `zsh/starship.zsh`, `bash/starship.sh` | `starship/starship.toml`, `starship.light.toml` |
+| Bat | `bat/.config/zsh/bat.zsh`, `bat/.config/bash/bat.sh` | (aliases only) |
+
+- Zsh `.zshrc` sources `starship.zsh` unconditionally
+- Bash `bashrc` sources `starship.sh` from `CONFIG_DIR`
+- Bat uses conditional source: `[[ -f "$ZDOTDIR/bat.zsh" ]] && source ...`
+
+Never use conditional-only sourcing for required prompts without a fallback.
+
+## Starship light/dark
+
+- Edit `starship/.config/starship.toml`, then run `./starship/sync_light_config.sh`
+- Commit both `starship.toml` and `starship.light.toml`
+- Detection: `STARSHIP_APPEARANCE`, macOS `AppleInterfaceStyle`, `COLORFGBG`, fallback dark
+- Details: [starship/README.md](../../starship/README.md)
+
+## Bat
+
+- Aliases only when `bat` binary is present
+- `setup_bat()` offers to comment out conflicting `cat` aliases in local RC files

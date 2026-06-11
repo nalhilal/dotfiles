@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working with this dotfiles repository.
+Guidance for AI agents when working with this dotfiles repository. Cursor entry point: [AGENTS.md](AGENTS.md).
 
 ## Repository Overview
 
@@ -122,6 +122,15 @@ Config uses Lua runtime detection for fonts, cursor, padding. No install script 
 - **Zsh**: `bat/.config/zsh/bat.zsh` → sourced conditionally by `.zshrc`
 - `setup_bat()` checks for conflicting `cat` aliases and offers to comment them out
 - Follows shell extension philosophy: aliases loaded via sourcing, not dynamic modification
+- Starship follows the same split: configs in the starship package (`starship.toml`, `starship.light.toml`), init in zsh/bash packages (`starship.zsh`, `starship.sh`)
+
+### Starship: Light/Dark Mode
+
+- **Configs**: `starship/.config/starship.toml` (dark, `synthwave_2077`) and `starship.light.toml` (light, `synthwave_2077_light`)
+- **Shell init**: `zsh/.config/zsh/starship.zsh` and `bash/.config/bash/starship.sh` — appearance detection sets `STARSHIP_CONFIG` before `starship init`
+- **Sync**: after editing module config in `starship.toml`, run `./starship/sync_light_config.sh` to regenerate `starship.light.toml`
+- **Detection**: `STARSHIP_APPEARANCE` override, macOS `AppleInterfaceStyle`, `COLORFGBG`, fallback dark
+- See [starship/README.md](starship/README.md) for details
 
 ## Common Gotchas
 
@@ -131,6 +140,9 @@ Config uses Lua runtime detection for fonts, cursor, padding. No install script 
 4. **RC File Modification**: Only in `setup_bash()` and `setup_zsh()` - check if already exists before appending
 5. **Package Managers**: Handle systems without standard package managers
 6. **Shell Reload**: `exec $SHELL` replaces current process - useful for auto-reload at end of install script, but cannot affect parent shell when run from within a script
+7. **Empty Stow Directories**: Do not leave empty directories under `package/.config/` (e.g. `zsh/`, `bash/`) — stow may adopt or replace parent dirs like `~/.config/zsh`
+8. **Archive Configs**: Historical or versioned configs belong outside `package/.config/` (e.g. `starship/archive/`) — files under `.config/` get stowed to `~/.config/` unintentionally
+9. **Shell Init Ownership**: Tool shell init must live in zsh/bash packages; conditional-only sourcing without a fallback breaks prompts if the init file is not stowed
 
 ## Theme
 

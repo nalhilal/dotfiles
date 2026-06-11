@@ -60,6 +60,7 @@ setup_test_env() {
     echo "mock nvim config" > "$MOCK_DOTFILES/nvim/.config/nvim/init.lua"
     echo "mock lazygit config" > "$MOCK_DOTFILES/lazygit/.config/lazygit/config.yml"
     echo "mock starship config" > "$MOCK_DOTFILES/starship/.config/starship.toml"
+    echo "mock starship light config" > "$MOCK_DOTFILES/starship/.config/starship.light.toml"
     echo "mock tmux config" > "$MOCK_DOTFILES/tmux/.config/tmux/tmux.conf"
     echo "#!/usr/bin/env bash" > "$MOCK_DOTFILES/tmux/.config/tmux/plugins/tpm/tpm"
     chmod +x "$MOCK_DOTFILES/tmux/.config/tmux/plugins/tpm/tpm"
@@ -117,6 +118,7 @@ case "$package" in
     starship)
         mkdir -p "$target_dir/.config"
         ln -sf "$dotfiles_dir/starship/.config/starship.toml" "$target_dir/.config/starship.toml"
+        ln -sf "$dotfiles_dir/starship/.config/starship.light.toml" "$target_dir/.config/starship.light.toml"
         ;;
     tmux)
         mkdir -p "$target_dir/.config"

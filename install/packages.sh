@@ -63,8 +63,15 @@ is_already_stowed() {
             source_dir="$DOTFILES_DIR/lazygit/.config/lazygit"
             ;;
         starship)
-            target_dir="$HOME/.config/starship.toml"
-            source_dir="$DOTFILES_DIR/starship/.config/starship.toml"
+            if [ -L "$HOME/.config/starship.toml" ]; then
+                local link_target resolved_source
+                link_target=$(get_absolute_path "$HOME/.config/starship.toml")
+                resolved_source=$(get_absolute_path "$DOTFILES_DIR/starship/.config/starship.toml")
+                if [[ "$link_target" == "$resolved_source" ]]; then
+                    return 0
+                fi
+            fi
+            return 1
             ;;
         tmux)
             target_dir="$HOME/.config/tmux"
@@ -218,16 +225,25 @@ backup_existing() {
             fi
             ;;
         starship)
-            if [ -e "$HOME/.config/starship.toml" ] && [ ! -L "$HOME/.config/starship.toml" ]; then
-                mkdir -p "$backup_dir" || {
-                    print_error "Failed to create backup directory: $backup_dir"
-                    return 1
-                }
-                mv "$HOME/.config/starship.toml" "$backup_dir/" || {
-                    print_error "Failed to backup starship config"
-                    return 1
-                }
-                print_warning "Backed up existing starship config to: $backup_dir"
+            local backed_up=0
+            local starship_file
+            for starship_file in \
+                "starship.toml" \
+                "starship.light.toml"; do
+                if [ -e "$HOME/.config/$starship_file" ] && [ ! -L "$HOME/.config/$starship_file" ]; then
+                    mkdir -p "$backup_dir/starship" || {
+                        print_error "Failed to create backup directory: $backup_dir"
+                        return 1
+                    }
+                    mv "$HOME/.config/$starship_file" "$backup_dir/starship/" || {
+                        print_error "Failed to backup starship config: $starship_file"
+                        return 1
+                    }
+                    backed_up=1
+                fi
+            done
+            if [ $backed_up -eq 1 ]; then
+                print_warning "Backed up existing starship configs to: $backup_dir/starship"
             fi
             ;;
         tmux)

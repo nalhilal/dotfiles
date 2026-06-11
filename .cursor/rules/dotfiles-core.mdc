@@ -1,0 +1,30 @@
+---
+description: Core dotfiles conventions — stow, shell extension, theme
+alwaysApply: true
+---
+
+# Dotfiles Core
+
+Read [CLAUDE.md](../../CLAUDE.md) for full architecture. These rules are always in effect.
+
+## Stow
+
+- Symlink packages from `~/.dotfiles` with `stow <package>` — never `cp` or `ln` for package files
+- Dry-run with `stow -n <package>` before manual stow changes
+
+## Shell extension
+
+- System RC files minimally source `~/.config/bash/` or `~/.config/zsh/` (via ZDOTDIR)
+- Only `setup_bash()` and `setup_zsh()` modify system `~/.bashrc`, `~/.bash_profile`, `~/.zshenv`
+- Tool setup functions check prerequisites and detect conflicts; they do not append init lines dynamically
+
+## Theme
+
+Synthwave 2077 palette for new UI configs:
+
+- Pink `#ff7edb`, Purple `#b893ce`, Cyan `#72f1b8`, Neon green `#fede5d`
+
+## Commits
+
+- No AI attribution in commit messages
+- Only commit when the user explicitly asks

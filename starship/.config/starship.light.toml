@@ -42,7 +42,7 @@ $line_break\
 $character"""
 
 add_newline = true
-palette = 'synthwave_2077'
+palette = 'synthwave_2077_light'
 
 # ═══════════════════════════════════════════════════════════════
 #                        CORE MODULES
@@ -369,7 +369,7 @@ muted = "#5a5a7a"
 
 # ═══════════════════════════════════════════════════════════════
 #         ALTERNATIVE PALETTE: SYNTHWAVE SUNSET
-#   To use: change palette = 'synthwave_2077' to 'synthwave_sunset'
+#   To use: change palette = 'synthwave_2077_light' to 'synthwave_sunset'
 # ═══════════════════════════════════════════════════════════════
 
 [palettes.synthwave_sunset]
@@ -404,7 +404,7 @@ muted = "#6c5b7b"
 
 # ═══════════════════════════════════════════════════════════════
 #         ALTERNATIVE PALETTE: SYNTHWAVE OCEAN
-#   To use: change palette = 'synthwave_2077' to 'synthwave_ocean'
+#   To use: change palette = 'synthwave_2077_light' to 'synthwave_ocean'
 # ═══════════════════════════════════════════════════════════════
 
 [palettes.synthwave_ocean]

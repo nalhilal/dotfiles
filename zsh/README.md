@@ -11,7 +11,7 @@ Modular Zsh configuration using the **dotfiles as extension pattern** with ZDOTD
 **Dotfiles Configuration** (located in `~/.config/zsh/`):
 - `.zshrc` - Main configuration, sources all modular files and sets bat as MANPAGER
 - `.zshenv` - Environment variables
-- `starship.zsh` - Starship prompt initialization
+- `starship.zsh` - Starship prompt initialization with light/dark config selection
 - `zoxide.zsh` - Zoxide (smart cd) setup
 - `fzf.zsh` - Fuzzy finder configuration
 - `git.zsh` - Git aliases and functions

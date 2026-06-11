@@ -1,0 +1,34 @@
+---
+description: Install script and package stow conventions
+globs: install/**,install.sh,test_install.sh
+alwaysApply: false
+---
+
+# Install Scripts
+
+## Adding a package
+
+1. Create package directory following stow convention
+2. Add to `AVAILABLE_PACKAGES` in `install/packages.sh`
+3. Add cases to `is_already_stowed()` and `backup_existing()`
+4. Add `setup_*()` in `install/setup.sh` if needed
+5. Update `test_install.sh` mock structure
+6. Run `./install.sh <package>` then `./test_install.sh`
+7. Add package README
+
+## Symlink detection
+
+Use `get_absolute_path()` — not raw `readlink -f` (handles macOS `/var` vs `/private/var`).
+
+## Multi-file packages
+
+Mirror bat/starship pattern: check key symlink files in `is_already_stowed()`, backup each non-symlink file in `backup_existing()`.
+
+## Stow gotchas
+
+- Do not leave empty dirs under `package/.config/` (e.g. `zsh/`, `bash/`) — stow may hijack `~/.config/zsh`
+- Do not store archive configs under `package/.config/` — they get stowed to `~/.config/` unintentionally; use `package/archive/` instead
+
+## Before commit
+
+Run `./test_install.sh` for any changes to `install/`, `install.sh`, or `test_install.sh`.
