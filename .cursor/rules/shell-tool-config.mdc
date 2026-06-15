@@ -25,7 +25,7 @@ Never use conditional-only sourcing for required prompts without a fallback.
 
 - Edit `starship/.config/starship.toml`, then run `./starship/sync_light_config.sh`
 - Commit both `starship.toml` and `starship.light.toml`
-- Detection: `STARSHIP_APPEARANCE`, macOS `AppleInterfaceStyle`, `COLORFGBG`, fallback dark
+- Detection: `STARSHIP_APPEARANCE`, WezTerm (always dark), macOS `AppleInterfaceStyle`, `COLORFGBG`, fallback dark
 - Details: [starship/README.md](../../starship/README.md)
 
 ## Bat

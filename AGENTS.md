@@ -31,3 +31,4 @@ Package READMEs: [bash/](bash/README.md), [zsh/](zsh/README.md), [starship/](sta
 - New UI configs should use the Synthwave 2077 palette: `#ff7edb`, `#b893ce`, `#72f1b8`, `#fede5d`
 - Do not leave empty directories under `package/.config/` — stow may adopt or replace parent dirs
 - Archive or historical configs belong outside `package/.config/` (e.g. `starship/archive/`)
+- WezTerm always uses the dark Starship prompt (fixed dark color scheme); other terminals follow OS/`COLORFGBG` appearance

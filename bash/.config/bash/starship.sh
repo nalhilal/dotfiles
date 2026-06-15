@@ -9,6 +9,8 @@ starship_resolve_config() {
 
     if [[ -n "${STARSHIP_APPEARANCE:-}" ]]; then
         appearance="$STARSHIP_APPEARANCE"
+    elif [[ -n "${WEZTERM_EXECUTABLE:-}" || -n "${WEZTERM_PANE:-}" ]]; then
+        appearance="dark"
     elif [[ "$(uname -s)" == "Darwin" ]]; then
         if ! defaults read -g AppleInterfaceStyle &>/dev/null; then
             appearance="light"

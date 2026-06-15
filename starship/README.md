@@ -24,9 +24,10 @@ Detection order (terminal-agnostic):
 
 1. `STARSHIP_CONFIG` — if already set, left unchanged
 2. `STARSHIP_APPEARANCE=light|dark` — manual override
-3. **macOS** — `defaults read -g AppleInterfaceStyle` (matches scheduled system appearance)
-4. **`COLORFGBG`** — background index `15` or `7–9` indicates a light terminal
-5. **Fallback** — dark
+3. **WezTerm** — always dark (WezTerm uses a fixed dark color scheme)
+4. **macOS** — `defaults read -g AppleInterfaceStyle` (matches scheduled system appearance)
+5. **`COLORFGBG`** — background index `15` or `7–9` indicates a light terminal
+6. **Fallback** — dark
 
 Override examples:
 

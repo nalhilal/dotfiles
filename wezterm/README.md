@@ -12,6 +12,7 @@ Cross-platform terminal emulator configuration with Synthwave 2077 theming.
   - **Linux**: JetBrains Mono Nerd Font, steady block cursor, comfortable padding
 - Platform-specific key bindings and mouse support
 - Automatic OS detection and configuration adjustment
+- Starship prompt stays on the dark config in WezTerm (see [starship/README.md](../starship/README.md))
 
 ## Installation
 
