@@ -22,12 +22,13 @@ The shell initializer selects the appropriate Starship config at startup:
 
 Detection order (terminal-agnostic):
 
-1. `STARSHIP_CONFIG` — if already set, left unchanged
+1. `STARSHIP_CONFIG` — custom config paths are left unchanged; inherited managed dark/light paths are recomputed
 2. `STARSHIP_APPEARANCE=light|dark` — manual override
 3. **WezTerm** — always dark (WezTerm uses a fixed dark color scheme)
 4. **macOS** — `defaults read -g AppleInterfaceStyle` (matches scheduled system appearance)
-5. **`COLORFGBG`** — background index `15` or `7–9` indicates a light terminal
-6. **Fallback** — dark
+5. **GNOME/GTK** — `gsettings` `color-scheme` / `gtk-theme`
+6. **`COLORFGBG`** — background index `15` or `7–9` indicates a light terminal
+7. **Fallback** — dark
 
 Override examples:
 

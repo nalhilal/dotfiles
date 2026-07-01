@@ -131,7 +131,7 @@ Starship uses the dark prompt in WezTerm (`WEZTERM_EXECUTABLE` / `WEZTERM_PANE` 
 - **Configs**: `starship/.config/starship.toml` (dark, `synthwave_2077`) and `starship.light.toml` (light, `synthwave_2077_light`)
 - **Shell init**: `zsh/.config/zsh/starship.zsh` and `bash/.config/bash/starship.sh` — appearance detection sets `STARSHIP_CONFIG` before `starship init`
 - **Sync**: after editing module config in `starship.toml`, run `./starship/sync_light_config.sh` to regenerate `starship.light.toml`
-- **Detection**: `STARSHIP_APPEARANCE` override, WezTerm (always dark via `WEZTERM_*` env), macOS `AppleInterfaceStyle`, `COLORFGBG`, fallback dark
+- **Detection**: custom `STARSHIP_CONFIG` paths are preserved; managed dark/light paths are recomputed from `STARSHIP_APPEARANCE`, WezTerm (always dark via `WEZTERM_*` env), macOS `AppleInterfaceStyle`, GNOME/GTK `gsettings`, `COLORFGBG`, fallback dark
 - See [starship/README.md](starship/README.md) for details
 
 ## Common Gotchas
