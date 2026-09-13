@@ -7,8 +7,11 @@ if type brew &>/dev/null; then
 fi
 
 # Initialize completion system
+# Keep the dump file in the cache dir, not in this stowed/versioned directory
 autoload -Uz compinit
-compinit
+ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-${ZSH_VERSION}"
+[[ -d "${ZSH_COMPDUMP:h}" ]] || mkdir -p "${ZSH_COMPDUMP:h}"
+compinit -d "$ZSH_COMPDUMP"
 
 # History Configuration
 HISTFILE="${ZDOTDIR:-$HOME}/.zsh_history"
@@ -84,6 +87,4 @@ if [[ -f "$ZDOTDIR/.zshrc.local" ]]; then
 fi
 
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-
-echo ">>> USER .zshrc LOADED <<<"
 

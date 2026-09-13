@@ -41,8 +41,8 @@ else
     alias ll='ls -l'
 fi
 
-# ngrok
-if command -v ngrok &>/dev/null; then
+# ngrok (needs compdef, i.e. a successful compinit)
+if command -v ngrok &>/dev/null && (( $+functions[compdef] )); then
   eval "$(ngrok completion)"
 fi
 

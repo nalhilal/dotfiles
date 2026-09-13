@@ -4,3 +4,6 @@
 # GitHub CLI credentials (prevent tokens from being committed)
 **/gh/hosts.yml
 **/.config/gh/
+
+# Zsh completion dump (generated, now written to ~/.cache/zsh)
+.zcompdump*
