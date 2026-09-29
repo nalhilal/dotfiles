@@ -16,7 +16,7 @@ ansi = [
   "#0088ff",  # blue
   "#b893ce",  # magenta (Synthwave lavender)
   "#00d4b1",  # cyan (Readable cyan)
-  "#c8d3f5",  # white (Soft Holographic Blue-Grey)
+  "#fd7fd9",  # white (Starship git branch hot pink)
 ]
 
 brights = [
@@ -27,5 +27,5 @@ brights = [
   "#00a2ff",  # blue
   "#e215d4",  # magenta (bright magenta)
   "#08e1d7",  # cyan (bright cyan)
-  "#e2e8f5",  # white (Crisp Icy Off-White)
+  "#C792EA",  # white (Starship username purple)
 ]
