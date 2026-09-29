@@ -11,21 +11,21 @@ split = "#00d4b1"
 ansi = [
   "#10d4b0",  # black
   "#ff7edb",  # red (Synthwave pink)
-  "#0059ff",  # green
-  "#f3e70f",  # yellow
+  "#72f1b8",  # green (Synthwave mint green)
+  "#fede5d",  # yellow (Synthwave bright yellow)
   "#0088ff",  # blue
-  "#94058a",  # magenta
-  "#029790",  # cyan
-  "#311b92",  # white
+  "#b893ce",  # magenta (Synthwave lavender)
+  "#00d4b1",  # cyan (Readable cyan)
+  "#c8d3f5",  # white (Soft Holographic Blue-Grey)
 ]
 
 brights = [
   "#02adf1",  # black
   "#ff6b9d",  # red (bright pink)
-  "#00ff9c",  # green
+  "#00ff9c",  # green (bright spring green)
   "#d0f30c",  # yellow
   "#00a2ff",  # blue
-  "#e215d4",  # magenta
-  "#08e1d7",  # cyan
-  "#2eb8f8",  # white
+  "#e215d4",  # magenta (bright magenta)
+  "#08e1d7",  # cyan (bright cyan)
+  "#e2e8f5",  # white (Crisp Icy Off-White)
 ]
