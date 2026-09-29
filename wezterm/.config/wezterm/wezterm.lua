@@ -44,14 +44,21 @@ if is_darwin() then
 		bottom = 0,
 	}
 elseif is_linux() then
-	-- Linux settings (including Arch)
+	-- Linux settings
 	font_config = {
-		-- font = wezterm.font("JetBrains Mono Nerd Font", { weight = "Regular" }),
-		font = wezterm.font("JetBrainsMono Nerd Font Mono", { weight = "Light" }),
+		font = wezterm.font_with_fallback({
+			{
+				family = "JetBrainsMono Nerd Font Mono",
+				weight = "Light",
+			},
+			{
+				family = "Noto Sans Arabic",
+				weight = "Regular",
+			},
+		}),
 		font_size = 11.0,
 	}
 	cursor_config = {
-		-- default_cursor_style = "SteadyBlock",
 		default_cursor_style = "BlinkingBar",
 		cursor_blink_rate = 1,
 	}
@@ -62,6 +69,10 @@ elseif is_linux() then
 		bottom = 14,
 	}
 end
+
+-- Better Arabic/RTL handling
+config.bidi_enabled = true
+config.bidi_direction = "AutoLeftToRight"
 
 -- Appearance settings from dotfile
 config.automatically_reload_config = true
