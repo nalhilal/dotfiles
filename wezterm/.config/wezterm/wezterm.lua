@@ -78,6 +78,7 @@ config.bidi_direction = "AutoLeftToRight"
 config.automatically_reload_config = true
 config.color_scheme = "Synthwave2077"
 config.window_background_opacity = 0.90
+-- config.window_background_opacity = 1.0 -- Disables transparency for better performance
 config.macos_window_background_blur = 20
 
 -- OS-specific font settings
@@ -132,5 +133,10 @@ config.mouse_bindings = {
 		action = act.PasteFrom("PrimarySelection"),
 	},
 }
+
+-- Performance tweaks
+-- config.max_fps = 30 -- Caps the terminal framerate to 30 FPS to reduce CPU/GPU usage
+-- config.animation_fps = 1 -- Reduces the framerate of animations to save resources
+-- config.front_end = "Software" -- Forces software rendering instead of GPU acceleration
 
 return config
