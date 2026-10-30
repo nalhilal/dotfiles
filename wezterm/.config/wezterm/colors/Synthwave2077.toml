@@ -9,23 +9,23 @@ scrollbar_thumb = "#029b60"
 split = "#00d4b1"
 
 ansi = [
-  "#10d4b0",  # black
+  "#101116",  # black (Synthwave dark void)
   "#ff7edb",  # red (Synthwave pink)
   "#72f1b8",  # green (Synthwave mint green)
   "#fede5d",  # yellow (Synthwave bright yellow)
   "#0088ff",  # blue
   "#b893ce",  # magenta (Synthwave lavender)
   "#00d4b1",  # cyan (Readable cyan)
-  "#fd7fd9",  # white (Starship git branch hot pink)
+  "#d1c4e9",  # white (Synthwave soft lavender-white)
 ]
 
 brights = [
-  "#02adf1",  # black
+  "#6c5b7b",  # black (Synthwave muted purple-gray)
   "#ff6b9d",  # red (bright pink)
   "#00ff9c",  # green (bright spring green)
   "#d0f30c",  # yellow
   "#00a2ff",  # blue
   "#e215d4",  # magenta (bright magenta)
   "#08e1d7",  # cyan (bright cyan)
-  "#C792EA",  # white (Starship username purple)
+  "#f8f8ff",  # white (Synthwave bright white)
 ]
